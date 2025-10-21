@@ -1,4 +1,4 @@
-export default function Home() {
+export default function LandingPage() {
   return (
     <div className="relative isolate px-6 pt-14 lg:px-8">
       <div
@@ -39,10 +39,9 @@ export default function Home() {
               </p>
             </div>
             <p className="text-sm/6 font-semibold text-white">
-              <a href="/main" className="hover:font-bold hover:underline">
+              <a href="/api/auth/signin" className="hover:font-bold hover:underline">
                 Try it for free!
-              </a>{" "}
-              (With a limit of 3 files.)
+              </a>{" (With a limit of 3 files.)"}
               <span aria-hidden="true">→</span>
             </p>
           </div>

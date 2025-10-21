@@ -1,5 +1,6 @@
 "use client";
 
+import DebugText from "@/app/debugText";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -40,9 +41,7 @@ export default function Home() {
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <p className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-        Debug!: THIS IS THE SUCCESSFUL VALIDATION PAGE
-      </p>
+        <DebugText PageTitle={"SUCCESFUL LOGIN"} />
       <p>
         Congratulations, you're successfully verified! Redirecting you in{" "}
         {seconds} seconds{dots}{" "}

@@ -1,10 +1,12 @@
+import DebugText from "../debugText";
+
 `use client`;
 
 export default function validateAccountForm({action }: {action: (formData: FormData) => void}) {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-16 gap-16 sm:p-20">
 
-    <p className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">Debug!: THIS IS THE ACCOUNT VALIDATION PAGE</p>
+    <DebugText PageTitle={"ACCOUNT VALIDATION"} />
 
       <form
         action={action}        
