@@ -26,7 +26,7 @@ export default function RenderUI() {
       <div className="grid grid-cols-3 gap-16">
         <NotesCard />
         <SummaryCard />
-        <ChatBotCard available={false} />
+        <ChatBotCard available={true} />
       </div>
 
       <UploadFile />
