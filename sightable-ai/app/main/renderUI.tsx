@@ -1,3 +1,4 @@
+import { getSession } from "next-auth/react";
 import DebugText from "../debugText";
 import ChatBotCard from "./cards/chatbotOptionCard";
 import NotesCard from "./cards/noteOptionCard";
@@ -19,16 +20,15 @@ export function UploadFile() {
   );
 }
 
-export default function RenderUI() {
+export default function RenderUI({ available }: { available: boolean }) {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-16 gap-16 sm:p-20">
       <DebugText PageTitle="MAIN" />
       <div className="grid grid-cols-3 gap-16">
         <NotesCard />
         <SummaryCard />
-        <ChatBotCard available={true} />
+        <ChatBotCard available={available} />
       </div>
-
       <UploadFile />
     </div>
   );

@@ -6,7 +6,7 @@ import LoginButton from "./components/loginButton";
 export default function loginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const type = "User";
+  const type = "user";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -19,7 +19,7 @@ export default async function GuestLoginDialogue() {
         <GuestButton myGuest={guest.email}></GuestButton>
         <p>
           Or{" "}
-          <a className="underline hover:font-bold" href="/login">
+          <a className="underline hover:font-bold" href="/create-account">
             sign-up
           </a>{" "}
           to experience the full potential

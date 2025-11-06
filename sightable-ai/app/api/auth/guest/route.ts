@@ -9,21 +9,4 @@ export async function GET() {
   return NextResponse.json(await dbTools.getGuestUser(guestEmail));
 }
 
-export async function POST(req: Request) { 
-  const { type, email } = await req.json();
-
-  const result = await signIn("credentials", {
-    redirect: false,
-    type,
-    email,
-  });
-
-  if (result?.error) {
-    return NextResponse.json({ error: result.error }, { status: 400 });
-  }
-
-  return NextResponse.redirect("/guest-dashboard");
-}
-
-
 

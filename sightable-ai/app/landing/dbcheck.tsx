@@ -18,7 +18,7 @@ export default function DatabaseWorking() {
     if(s != null) {console.log((s > 0) ? "True" : "False");}
   });*/
   
-  dbTools.getAllGuests().then((s) => {
+  dbTools.getAllGuestUsers().then((s) => {
     //console.log(s);
   });
 

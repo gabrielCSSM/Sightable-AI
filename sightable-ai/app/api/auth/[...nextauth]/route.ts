@@ -1,8 +1,8 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import * as dbTools from "../../../lib/databaseTools";
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -24,51 +24,65 @@ const handler = NextAuth({
 
       async authorize(credentials) {
         const { type, email, password } = credentials ?? {};
+        console.log(credentials);
 
-        console.log(type);
-        console.log(email);
-        console.log(password);
-        if(type == "User") console.log("asddddddd");
+        switch (type) {
+          case "user":
+            if (!email || !password) throw new Error("No hay parametros");
 
-        if (type == "User") {
-          if (!email || !password) throw new Error("No hay parametros");
-          console.log("CREDENTIALS USER");
-          console.log(credentials);
+            if (await dbTools.checkPassword(email, password)) {
+              let query = await dbTools.getFullLoggedUser(email, password);
+              
+              query["role"] = "user";
+              const user = query;
+              return user;
+            }
 
-          if (await dbTools.checkPassword(email, password)) {
-            const user = await dbTools.getUser(email, password);
-            return user;
-          }
+            break;
+          case "guest":
+            if (!email) throw new Error("No hay parametros");
+
+            if (await dbTools.checkGuestUser(email)) {
+              let query = await dbTools.getGuestUser(email);
+              query["role"] = "guest";
+              const user = query;
+              return user;
+            }
+
+            break;
+          case "pending":
+            if (!email) throw new Error("No hay parametros");
+            if (await dbTools.checkPendingUser(email)) {
+              let query = await dbTools.getPendingUser(email);
+              query["role"] = "pending";
+              const user = query;
+              return user;
+            }
+            break;
+          default:
+            return null;
         }
-
-        if (type == "Guest") {
-          if (!email) throw new Error("No hay parametros");
-          console.log("CREDENTIALS GUEST");
-          console.log(credentials);
-
-          if (await dbTools.checkGuestUser(email)) {
-            const user = await dbTools.getGuestUser(email);
-            return user;
-          }
-        }
-        return null;
       },
     }),
   ],
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.user = user;
-      console.log(token);
+      if (user) {
+        token.role = user.role;
+      }
       return token;
     },
 
     async session({ session, token }) {
-      session.user = token.user;
+      if (token) {
+        session.user.role = token.role;
+      }
       return session;
     },
     async redirect() {
-      return `/main`;
+      const baseURL = `http://localhost:3000/`;
+      return baseURL + `/main`;
     },
   },
   session: {
@@ -79,6 +93,8 @@ const handler = NextAuth({
   },
 
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

@@ -12,8 +12,7 @@ export default function LoginButton({
 }) {
   return (
     <button onClick={() => signIn("credentials", {type: type, email: email, password: pass})} 
-    className="bg-blue-500 hover:bg-blue-600 text-white rounded p-2">
-      <a href="/api/auth/signin">Login</a>
+    className="bg-blue-500 hover:bg-blue-600 text-white rounded p-2"> Login
     </button>
   );
 }
