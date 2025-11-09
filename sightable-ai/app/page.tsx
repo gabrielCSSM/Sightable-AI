@@ -1,6 +1,6 @@
 import RenderUI from "./landing/renderUI";
 
-export default function LandingPage() {
+export default function main() {
   return (
     <RenderUI />
   );
