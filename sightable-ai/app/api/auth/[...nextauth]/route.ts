@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
 
       async authorize(credentials) {
         const { type, email, password } = credentials ?? {};
-        console.log(credentials);
+        // console.log(credentials);
 
         switch (type) {
           case "user":

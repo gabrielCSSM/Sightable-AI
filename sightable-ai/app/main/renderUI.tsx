@@ -1,20 +1,24 @@
-import { getSession } from "next-auth/react";
+"use client";
 import DebugText from "../debugText";
-import ChatBotCard from "./cards/chatbotOptionCard";
-import NotesCard from "./cards/noteOptionCard";
-import SummaryCard from "./cards/summaryOptionCard";
+import ChatBotCard from "./options/chatbot/chatbotOptionCard";
+import NotesCard from "./options/notes/noteOptionCard";
+import SummaryCard from "./options/summary/summaryOptionCard";
 
 export function UploadFile() {
+  const handleFile = async (e: React.FormEvent) => {
+    
+  };
+
   return (
-    <div>
-      <form>
+    <div className="p-1 border border-amber-50 rounded-2xl flex flex-col items-center-safe">
+      <form method="POST" onSubmit={handleFile}>
         <input type="file" id="fileToUpload" name="fileToUpload" />
         <br></br>
         <input
           className="p-2 border-2 border-red-50"
           type="submit"
           value="Upload File"
-        ></input>
+        />
       </form>
     </div>
   );
