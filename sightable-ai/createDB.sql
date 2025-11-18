@@ -1,7 +1,7 @@
 -- Por si se comete alguna metepatez
-DROP TABLE loggedUsers;
-DROP TABLE guestUsers;
-DROP TABLE pendingUsers;
+DROP TABLE IF EXISTS loggedUsers;
+DROP TABLE IF EXISTS guestUsers;
+DROP TABLE IF EXISTS pendingUsers;
 
 -- Extension necesaria para el hasheo y gestion de este
 CREATE EXTENSION IF NOT EXISTS pgcrypto;

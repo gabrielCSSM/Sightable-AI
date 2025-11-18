@@ -1,24 +1,31 @@
 "use client";
+
+import { useState } from "react";
 import DebugText from "../debugText";
 import ChatBotCard from "./options/chatbot/chatbotOptionCard";
 import NotesCard from "./options/notes/noteOptionCard";
 import SummaryCard from "./options/summary/summaryOptionCard";
+import { handleFileUpload } from "./options/notes/notes";
 
-export function UploadFile() {
-  const handleFile = async (e: React.FormEvent) => {
-    
-  };
+export function UploadFile({
+    action,
+  }: {
+    action: (formData: FormData) => void;
+  }) {
+  const [selectedFile, setSelectedFile] = useState();
 
   return (
     <div className="p-1 border border-amber-50 rounded-2xl flex flex-col items-center-safe">
-      <form method="POST" onSubmit={handleFile}>
-        <input type="file" id="fileToUpload" name="fileToUpload" />
-        <br></br>
+      <form action={action}>
         <input
-          className="p-2 border-2 border-red-50"
-          type="submit"
-          value="Upload File"
+          type="file"
+          id="fileToUpload"
+          name="fileToUpload"
         />
+        <br></br>
+        <button className="p-2 border-2 border-red-50">
+          Upload
+        </button>
       </form>
     </div>
   );
@@ -33,7 +40,7 @@ export default function RenderUI({ available }: { available: boolean }) {
         <SummaryCard />
         <ChatBotCard available={available} />
       </div>
-      <UploadFile />
+      <UploadFile action={handleFileUpload} />
     </div>
   );
 }
