@@ -3,7 +3,7 @@ import Page from "../main/page";
 import React from "react";
 import { motion } from "framer-motion";
 
-export default function LandingPage() {
+export function LandingPage() {
   return (
     <div className="relative isolate px-6 pt-14 lg:px-8">
       <div
@@ -82,7 +82,7 @@ export function LandingPage3() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          Welcome to <span className="text-indigo-600">YourApp</span>
+          Welcome to <span className="text-indigo-600">Sightable AI!</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -102,9 +102,9 @@ export function LandingPage3() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.6 }}
         >
-          YourApp helps you design, collaborate, and launch digital experiences
-          faster than ever — all in one place. Built for teams that move fast
-          and value design.
+          Sightable AI helps you design, collaborate, and launch digital
+          experiences faster than ever — all in one place. Built for teams that
+          move fast and value design.
         </motion.p>
 
         {/* Buttons */}

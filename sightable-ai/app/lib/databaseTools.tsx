@@ -107,11 +107,32 @@ export async function createGuest(email: String) {
 
 export async function createPendingUser(email: String, pass: String) {
   const valCode = "12345678";
-  const query = await ConnectionDB.query(
-    "INSERT INTO pendingUsers (email, password, validation_code, validated) VALUES ('"+ email +"', '"+ pass +"', '"+ valCode +"', false);"
-  );
-  ConnectionDB.end;
-  return query.rows;
+  if (await checkPendingUser(email)) {
+    deletePendingUser(email);
+    const query = await ConnectionDB.query(
+      "INSERT INTO pendingUsers (email, password, validation_code, validated) VALUES ('" +
+        email +
+        "', '" +
+        pass +
+        "', '" +
+        valCode +
+        "', false);"
+    );
+    ConnectionDB.end;
+    return query.rows;
+  } else {
+    const query = await ConnectionDB.query(
+      "INSERT INTO pendingUsers (email, password, validation_code, validated) VALUES ('" +
+        email +
+        "', '" +
+        pass +
+        "', '" +
+        valCode +
+        "', false);"
+    );
+    ConnectionDB.end;
+    return query.rows;
+  }
 }
 
 export async function getPendingUser(email: String) {
