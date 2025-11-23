@@ -1,10 +1,8 @@
-import * as RenderUI from "./landing/renderUI";
-
+import LandingPage from "./landing/LandingPage";
 import React from "react";
 
 export default function main() {
   return (
-    <RenderUI.LandingPage />
-    //<RenderUI.LandingPage3 />
+    <LandingPage />
   );
 }
