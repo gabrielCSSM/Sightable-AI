@@ -1,13 +1,14 @@
 "use client";
 import { FormEvent, useState } from "react";
-import CreateAccountButton from "./components/createAccountButton";
+import { redirect } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function createAccountForm() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (
-      error.length != 0 &&
-      error_pass.length != 0 &&
+      error.length != 0 ||
+      error_pass.length != 0 ||
       error_email.length != 0
     ) {
       console.log("FIX YOUR ERRORS!");
@@ -21,14 +22,18 @@ export default function createAccountForm() {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-
-      const data = await res.json();
-      console.log(data);
+      
       if (!res.ok) {
-        console.log("algo mal");
         setError("Usuario ya existe!");
       } else {
         setError("");
+        signIn("credentials", {
+          redirect: false,
+          type: "pending",
+          email: email,
+          pass: password,
+        });
+        redirect("/validate-account");
       }
     }
 
@@ -60,9 +65,9 @@ export default function createAccountForm() {
         </h2>
         <input
           name="email"
-          type="email"
+          type="text"
           onChange={(e) => {
-            setPassword(e.target.value);
+            setEmail(e.target.value);
             if (!e.target.value.match(emailRegEx)) {
               setErrorEmail("Introduce un correo valido!");
             } else {
@@ -140,3 +145,4 @@ export default function createAccountForm() {
     </div>
   );
 }
+ 

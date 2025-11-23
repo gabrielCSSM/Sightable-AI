@@ -156,9 +156,9 @@ export async function checkValidationCode(
   validationCode: String
 ) {
   const query = await ConnectionDB.query(
-    "SELECT * FROM pendingUsers WHERE email ='" +
+    "SELECT * FROM pendingUsers WHERE email='" +
       email +
-      "' AND validation_code = '" +
+      "' AND validation_code='" +
       validationCode +
       "';"
   );

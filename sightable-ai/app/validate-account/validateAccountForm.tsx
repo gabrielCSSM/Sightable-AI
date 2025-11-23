@@ -1,12 +1,32 @@
 "use client";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import DebugText from "../debugText";
-import ValidateAccountButton from "./components/validateButton";
+import validateUser from "./handle";
+import { signIn } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function validateAccountForm() {
   const [code, setCode] = useState("");
-  const handleVal = async (e: React.FormEvent) => {
+  const [error, setError] = useState("");
+  const handleVal = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const authCode = fd.get("authCode");
+    const response = await validateUser(authCode ?? "");
+    console.log(response["code"]);
+
+    if (!response["code"]) {
+      setError("Codigo no valido!");
+    } else {
+      setError("");
+      signIn("credentials", {
+        redirect: false,
+        type: "user",
+        email: response["email"],
+        password: response["pass"],
+      });
+      redirect("/validate-account/success");
+    }
   };
 
   return (
@@ -28,7 +48,13 @@ export default function validateAccountForm() {
           className="border p-2 rounded"
           required
         />
-        <ValidateAccountButton authCode={code} />
+        <p className="text-red-600">{error}</p>
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-600 text-white rounded p-2"
+        >
+          Validate
+        </button>
       </form>
       <p className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
         Problems validating your account?{" "}

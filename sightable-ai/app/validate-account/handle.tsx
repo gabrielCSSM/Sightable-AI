@@ -4,32 +4,30 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { cookies } from "next/headers";
 
-function validateCode(code: String) {
-  const validationStructure = new RegExp("([0-9]{8})");
-  return validationStructure.test(code.trim());
-}
-
-function sessionUnset() {
+export async function sessionUnset() {
   cookies().then((e) => {
-    e.delete("next-auth.csrf-token")
+    e.delete("next-auth.csrf-token");
   });
 }
 
-export async function handleAccountValidation(authCode: string) {
+export default async function validateUser(authCode: FormDataEntryValue) {
   const session = await getServerSession(authOptions);
-
-  if (validateCode(authCode)) {
-    const email = session?.user.email ?? "Empty";
-
-    if (await dbTools.checkValidationCode(email, authCode)) {
-      await dbTools.updateStatus(email);
-      const tempPWD = (await dbTools.getPendingUser(email))["password"];
-      await dbTools.upgradeUser(email);
-      //const password = (await dbTools.getPassword(email))["password"];
-      sessionUnset();
-      return { email, tempPWD };
-    } else {
-      throw new Error("Bad code Input.");
+  const email = session?.user.email;
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/auth/users/validate`,
+    {
+      method: "POST",
+      body: JSON.stringify({ authCode, email }),
     }
+  );
+  
+  if (res.ok) {
+    const response = await res.json();
+    const myRes = { code: true, email: response["email"], pass: response["tempPWD"] };
+    sessionUnset();
+    return myRes;
+  } else {
+    const myRes = { code: false, email: "", pass: "" };
+    return myRes;
   }
 }
