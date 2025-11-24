@@ -1,58 +1,46 @@
 "use client";
-import { useEffect, useState } from "react";
-import DebugText from "../debugText";
-import LoginButton from "./components/loginButton";
+import { redirect } from "next/navigation";
+import logo from "@/public/logo_sightable.png";
+import LanguageSelector from "../components/LanguageSelector";
+import LoginForm from "./components/LoginForm";
 
-export default function loginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const type = "user";
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-  };
 
+export default function LoginPage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-16 gap-16 sm:p-20">
-      <DebugText PageTitle={"ACCOUNT VALIDATION"} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+      </div>
 
-      <form
-        className="font-sans flex flex-col items-center justify-items-center min-h-screen p-8 pb-16 gap-16 sm:p-20"
-        onSubmit={handleLogin}
-      >
-        <h2 className="text-2xl font-bold mb-2 text-center">Login</h2>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Your Email. Ex: example@sightable.ai"
-          className="border p-2 rounded"
-          required
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Your Password."
-          className="border p-2 rounded"
-          required
-        />
+      <LanguageSelector />
 
-        <p className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          Don't have a account?{" "}
-          <a href="/create-account">
-            Create one here.
-          </a>
-        </p>
+      <div className="absolute top-8 left-8 z-20">
+        <button
+          onClick={() => redirect("/landing")}
+          className="flex items-center gap-2 text-slate-400 hover:text-teal-400 transition-colors"
+        >
+          <div className="w-8 h-8 bg-gradient-to-br from-teal-900 to-cyan-800 rounded-lg flex items-center justify-center">
+            <img src={logo.src}></img>
+          </div>
+          <span
+            className="font-semibold text-sm"
+            style={{ fontFamily: "Space Grotesk, sans-serif" }}
+          >
+            Sightable AI
+          </span>
+        </button>
+      </div>
 
-        <div className="grid grid-cols-3 gap-16">
-          <LoginButton type={type} email={email} pass={password}></LoginButton>
-          <button className="bg-red-500 hover:bg-red-700 text-white rounded p-2">
-            <a href="/">Return</a>
-          </button>
-          
+      <div className="relative z-10 w-full max-w-md">
+        <div className="bg-slate-900/50 backdrop-blur-xl border-2 border-slate-800 rounded-3xl p-8 shadow-2xl">
+          <LoginForm />
         </div>
-      </form>
+      </div>
     </div>
   );
 }

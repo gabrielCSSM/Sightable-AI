@@ -1,6 +1,7 @@
 import { ArrowRight, EyeOff, Rocket, Sparkles, Zap } from "lucide-react";
 import logo from "@/public/logo_sightable.png"
 import Main_Features from "./Features";
+import { redirect } from "next/navigation";
 
 export default function Main_Main() {
   return (
@@ -26,12 +27,14 @@ export default function Main_Main() {
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
-        <button className="group relative px-8 py-4 bg-gradient-to-r from-teal-400 to-cyan-300 rounded-xl font-semibold text-slate-900 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 min-w-[200px] justify-center">
+        <button className="group relative px-8 py-4 bg-gradient-to-r from-teal-400 to-cyan-300 rounded-xl font-semibold text-slate-900 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 min-w-[200px] justify-center" 
+          onClick={() => redirect("/login")}>
           <span>Log In</span>
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </button>
 
-        <button className="group px-8 py-4 bg-transparent border-2 border-teal-400 rounded-xl font-semibold text-teal-400 hover:bg-teal-400/10 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 min-w-[200px] justify-center">
+        <button className="group px-8 py-4 bg-transparent border-2 border-teal-400 rounded-xl font-semibold text-teal-400 hover:bg-teal-400/10 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 min-w-[200px] justify-center"
+          onClick={() => redirect("/handleGuests")}>
           <Zap className="w-5 h-5" />
           <span>Try as Guest</span>
         </button>
