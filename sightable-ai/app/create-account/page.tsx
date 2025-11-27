@@ -20,7 +20,7 @@ export default function CreatePage() {
 
       <div className="absolute top-8 left-8 z-20">
         <button
-          onClick={() => redirect("/landing")}
+          onClick={() => redirect("/")}
           className="flex items-center gap-2 text-slate-400 hover:text-teal-400 transition-colors"
         >
           <div className="w-8 h-8 bg-gradient-to-br from-teal-900 to-cyan-800 rounded-lg flex items-center justify-center">

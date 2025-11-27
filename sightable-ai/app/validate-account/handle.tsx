@@ -10,6 +10,11 @@ export async function sessionUnset() {
   });
 }
 
+export async function obterSession() {
+  const session = await getServerSession(authOptions);
+  return session?.user;
+}
+
 export default async function validateUser(authCode: FormDataEntryValue) {
   const session = await getServerSession(authOptions);
   const email = session?.user.email;

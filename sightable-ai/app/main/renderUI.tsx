@@ -1,46 +1,530 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import DebugText from "../debugText";
 import ChatBotCard from "./options/chatbot/chatbotOptionCard";
 import NotesCard from "./options/notes/noteOptionCard";
 import SummaryCard from "./options/summary/summaryOptionCard";
 import { handleFileUpload } from "./options/notes/notes";
+import logo from "@/public/logo_sightable.png";
+
+import {
+  Upload,
+  X,
+  FileText,
+  File,
+  Image,
+  User,
+  Settings,
+  LogOut,
+  CreditCard,
+  HelpCircle,
+  ChevronRight,
+  Sparkles,
+  MessageSquare,
+  ListChecks,
+  CheckCircle,
+} from "lucide-react";
 
 export function UploadFile({
-    action,
-  }: {
-    action: (formData: FormData) => void;
-  }) {
+  action,
+}: {
+  action: (formData: FormData) => void;
+}) {
   const [selectedFile, setSelectedFile] = useState();
 
   return (
     <div className="p-1 border border-amber-50 rounded-2xl flex flex-col items-center-safe">
       <form action={action}>
-        <input
-          type="file"
-          id="fileToUpload"
-          name="fileToUpload"
-        />
+        <input type="file" id="fileToUpload" name="fileToUpload" />
         <br></br>
-        <button className="p-2 border-2 border-red-50">
-          Upload
-        </button>
+        <button className="p-2 border-2 border-red-50">Upload</button>
       </form>
+      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-16 gap-16 sm:p-20">
+        <DebugText PageTitle="MAIN" />
+        <div className="grid grid-cols-3 gap-16">
+          <NotesCard />
+          <SummaryCard />
+          <ChatBotCard available={false} />
+        </div>
+        <UploadFile action={handleFileUpload} />
+      </div>
     </div>
   );
 }
 
 export default function RenderUI({ available }: { available: boolean }) {
+  const [profile, profileOpen] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedMode, setSelectedMode] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const MAX_FILES = 5;
+  const MAX_SIZE_MB = 150;
+  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+  const modes = [
+    {
+      id: "notes",
+      name: "Notes",
+      icon: ListChecks,
+      color: "purple",
+      description: "Quick bullet points and key takeaways",
+      gradient: "from-purple-500 to-purple-400",
+      bgColor: "bg-purple-500/20",
+      borderColor: "border-purple-400/30",
+      textColor: "text-purple-300",
+    },
+    {
+      id: "summary",
+      name: "Summary",
+      icon: Sparkles,
+      color: "pink",
+      description: "Comprehensive overview of content",
+      gradient: "from-pink-500 to-pink-400",
+      bgColor: "bg-pink-500/20",
+      borderColor: "border-pink-400/30",
+      textColor: "text-pink-300",
+    },
+    {
+      id: "chatbot",
+      name: "Chatbot",
+      icon: MessageSquare,
+      color: "amber",
+      description: "Ask questions about your content",
+      gradient: "from-amber-500 to-amber-400",
+      bgColor: "bg-amber-500/20",
+      borderColor: "border-amber-400/30",
+      textColor: "text-amber-300",
+    },
+  ];
+
+  const getTotalSize = () => {
+    return uploadedFiles.reduce((total, file) => total + file.size, 0);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
+  const getFileIcon = (fileName) => {
+    const ext = fileName.split(".").pop().toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "svg"].includes(ext)) return Image;
+    if (["pdf"].includes(ext)) return FileText;
+    return File;
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    handleFiles(files);
+  };
+
+  const handleFileInput = (e) => {
+    const files = Array.from(e.target.files);
+    handleFiles(files);
+  };
+
+  const handleFiles = (files) => {
+    const currentTotal = getTotalSize();
+    const newFiles = [];
+    let newTotal = currentTotal;
+
+    for (const file of files) {
+      if (uploadedFiles.length + newFiles.length >= MAX_FILES) {
+        alert(`Maximum ${MAX_FILES} files allowed`);
+        break;
+      }
+
+      if (newTotal + file.size > MAX_SIZE_BYTES) {
+        alert(`Total file size exceeds ${MAX_SIZE_MB}MB limit`);
+        break;
+      }
+
+      newFiles.push({
+        id: Math.random().toString(36).substring(2, 9),
+        name: file.name,
+        size: file.size,
+        file: file,
+      });
+      newTotal += file.size;
+    }
+
+    setUploadedFiles([...uploadedFiles, ...newFiles]);
+  };
+
+  const removeFile = (fileId) => {
+    setUploadedFiles(uploadedFiles.filter((f) => f.id !== fileId));
+  };
+
+  const handleProcess = () => {
+    if (!selectedMode) return;
+    setIsProcessing(true);
+
+    // Simulate processing
+    setTimeout(() => {
+      setIsProcessing(false);
+      handleFileUpload(uploadedFiles)
+    }, 2000);
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-16 gap-16 sm:p-20">
-      <DebugText PageTitle="MAIN" />
-      <div className="grid grid-cols-3 gap-16">
-        <NotesCard />
-        <SummaryCard />
-        <ChatBotCard available={available} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
       </div>
-      <UploadFile action={handleFileUpload} />
+
+      <header className="relative z-10 px-8 py-6 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-cyan-300 rounded-full flex items-center justify-center">
+            <img src={logo.src}></img>
+          </div>
+          <span
+            className="text-xl font-bold"
+            style={{ fontFamily: "Space Grotesk, sans-serif" }}
+          >
+            Sightable AI
+          </span>
+        </div>
+
+        {/* User Dashboard Toggle */}
+        <button
+          onClick={() => {
+            profileOpen(!profile);
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-teal-400 transition-all duration-300 group"
+        >
+          <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-cyan-300 rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-slate-900" />
+          </div>
+          <span className="font-semibold hidden sm:inline">Alex J.</span>
+          <ChevronRight
+            className={`w-4 h-4 transition-transform duration-300 ${
+              profile ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 max-w-5xl mx-auto px-8 py-12">
+        {/* Upload Area */}
+        {uploadedFiles.length === 0 ? (
+          <div
+            className={`relative border-4 border-dashed rounded-3xl p-12 transition-all duration-300 ${
+              isDragging
+                ? "border-teal-400 bg-teal-400/10 scale-[1.02]"
+                : "border-slate-700 bg-slate-800/30"
+            }`}
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileInput}
+              className="hidden"
+              accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+            />
+
+            <div className="text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-teal-400 to-cyan-300 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-teal-500/30 animate-pulse">
+                <Upload className="w-12 h-12 text-slate-900" />
+              </div>
+
+              <h2
+                className="text-3xl font-bold mb-4"
+                style={{ fontFamily: "Space Grotesk, sans-serif" }}
+              >
+                Drop your files here
+              </h2>
+              <p className="text-slate-400 text-lg mb-6">
+                or click to browse your device
+              </p>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="group px-8 py-4 bg-gradient-to-r from-teal-400 to-cyan-300 rounded-xl font-semibold text-slate-900 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transform hover:scale-105 transition-all duration-300 inline-flex items-center gap-2"
+              >
+                <Upload className="w-5 h-5" />
+                <span>Choose Files</span>
+              </button>
+
+              <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-slate-500">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-teal-400" />
+                  <span>Maximum {MAX_FILES} files</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-teal-400" />
+                  <span>Up to {MAX_SIZE_MB}MB total</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-teal-400" />
+                  <span>PDF, DOC, TXT, Images</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Uploaded Files */}
+            <div className="bg-slate-800/30 backdrop-blur-sm border-2 border-slate-700 rounded-2xl p-6 mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <h3
+                  className="text-xl font-bold"
+                  style={{ fontFamily: "Space Grotesk, sans-serif" }}
+                >
+                  Uploaded Files ({uploadedFiles.length}/{MAX_FILES})
+                </h3>
+                <div className="text-sm text-slate-400">
+                  {formatFileSize(getTotalSize())} / {MAX_SIZE_MB}MB
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {uploadedFiles.map((file) => {
+                  const FileIconComponent = getFileIcon(file.name);
+                  return (
+                    <div
+                      key={file.id}
+                      className="flex items-center justify-between bg-slate-800/50 border border-slate-700 rounded-xl p-4 group hover:border-slate-600 transition-all"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileIconComponent className="w-5 h-5 text-teal-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate">{file.name}</p>
+                          <p className="text-sm text-slate-500">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeFile(file.id)}
+                        className="ml-4 p-2 hover:bg-red-500/20 rounded-lg transition-colors group"
+                      >
+                        <X className="w-5 h-5 text-slate-500 group-hover:text-red-400" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {uploadedFiles.length >= 5 ? (
+                <div />
+              ) : (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="mt-4 w-full py-3 border-2 border-dashed border-slate-600 rounded-xl text-slate-400 hover:border-teal-400 hover:text-teal-400 transition-all duration-300 font-semibold"
+                >
+                  + Add More Files
+                </button>
+              )}
+            </div>
+
+            {/* Mode Selection */}
+            <div className="mb-8">
+              <h3
+                className="text-2xl font-bold mb-6 text-center"
+                style={{ fontFamily: "Space Grotesk, sans-serif" }}
+              >
+                Choose Your Mode
+              </h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                {modes.map((mode) => {
+                  const Icon = mode.icon;
+                  const isSelected = selectedMode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      onClick={() => setSelectedMode(mode.id)}
+                      className={`relative bg-slate-800/40 backdrop-blur-sm border-2 rounded-2xl p-6 transition-all duration-300 group ${
+                        isSelected
+                          ? `${mode.borderColor} shadow-lg transform scale-105`
+                          : "border-slate-700 hover:border-slate-600 hover:transform hover:scale-[1.02]"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${mode.bgColor} rounded-2xl`}
+                        ></div>
+                      )}
+
+                      <div className="relative z-10">
+                        <div
+                          className={`w-16 h-16 bg-gradient-to-br ${mode.gradient} rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg`}
+                        >
+                          <Icon className="w-8 h-8 text-white" />
+                        </div>
+
+                        <h4
+                          className="text-xl font-bold mb-2"
+                          style={{ fontFamily: "Space Grotesk, sans-serif" }}
+                        >
+                          {mode.name}
+                        </h4>
+
+                        <p className="text-slate-400 text-sm">
+                          {mode.description}
+                        </p>
+
+                        {isSelected && (
+                          <div className="mt-4 flex items-center justify-center gap-2 text-teal-400">
+                            <CheckCircle className="w-5 h-5" />
+                            <span className="font-semibold text-sm">
+                              Selected
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Process Button */}
+            <div className="text-center">
+              <button
+                onClick={handleProcess}
+                disabled={!selectedMode || isProcessing}
+                className="group px-12 py-4 bg-gradient-to-r from-teal-400 to-cyan-300 rounded-xl font-semibold text-slate-900 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transform hover:scale-105 transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isProcessing ? (
+                  <>
+                    <div className="w-5 h-5 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    <span>Process Files</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        )}
+      </main>
+
+      {/* User Dashboard Sidebar */}
+      <div
+        className={`fixed top-0 right-0 h-full w-80 bg-slate-900/95 backdrop-blur-xl border-l-2 border-slate-800 shadow-2xl transform transition-transform duration-300 z-50 ${
+          profile ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-6">
+          {/* Close Button */}
+          <button
+            onClick={() => profileOpen(false)}
+            className="absolute top-6 right-6 p-2 hover:bg-slate-800 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* User Profile */}
+          <div className="mb-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-teal-400 to-cyan-300 rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-10 h-10 text-slate-900" />
+            </div>
+            <h2
+              className="text-xl font-bold text-center mb-1"
+              style={{ fontFamily: "Space Grotesk, sans-serif" }}
+            >
+              Alex Johnson
+            </h2>
+            <p className="text-slate-400 text-center text-sm">
+              alex.j@university.edu
+            </p>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="bg-slate-800/50 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-teal-400">127</p>
+              <p className="text-xs text-slate-500">Files Processed</p>
+            </div>
+            <div className="bg-slate-800/50 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-purple-400">43</p>
+              <p className="text-xs text-slate-500">Summaries</p>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <nav className="space-y-2">
+            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors text-left">
+              <Settings className="w-5 h-5 text-teal-400" />
+              <span>Settings</span>
+            </button>
+            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors text-left">
+              <CreditCard className="w-5 h-5 text-teal-400" />
+              <span>Subscription</span>
+            </button>
+            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors text-left">
+              <HelpCircle className="w-5 h-5 text-teal-400" />
+              <span>Help & Support</span>
+            </button>
+            <div className="border-t border-slate-800 my-4"></div>
+            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 rounded-xl transition-colors text-left text-red-400">
+              <LogOut className="w-5 h-5" />
+              <span>Log Out</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Overlay when dashboard is open */}
+      {profile && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+          onClick={() => profileOpen(false)}
+        ></div>
+      )}
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        onChange={handleFileInput}
+        className="hidden"
+        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+      />
     </div>
   );
 }
