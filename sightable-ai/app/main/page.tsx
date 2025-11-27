@@ -6,27 +6,21 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 export default async function Page() {
   const session = await getServerSession(authOptions);
   let available = false;
-  
+
   if (session?.user.role != "pending") {
-    
     if (session?.user.role != "guest") {
       available = true;
     }
 
     if (session) {
-      return (
-        <div>
-          <div>
-            <p>
-              HAY SESION {session.user.email} Y ES {session.user.role}
-            </p>
-            <button>
-              <a href="/api/auth/signout">Log Out</a>
-            </button>
-          </div>
-          <RenderUI available={available}></RenderUI>
-        </div>
-      );
+      const myUser = {
+        user: session.user.email.split("@")[0],
+        email: session.user.email,
+        files: 0,
+        summaries: 0,
+      };
+      //console.log(myUser);
+      return <RenderUI available={available} myUser={myUser} />;
     } else {
       redirect("http://localhost:3000/");
     }

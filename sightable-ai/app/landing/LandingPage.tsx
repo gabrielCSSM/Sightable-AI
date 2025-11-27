@@ -47,7 +47,7 @@ function LandingPageOld() {
             </div>
             <p className="text-sm/6 font-semibold text-white">
               <a
-                href="/handleGuests/"
+                href="/guest-user/"
                 className="hover:font-bold hover:underline"
               >
                 Try it for free!

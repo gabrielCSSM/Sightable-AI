@@ -34,7 +34,7 @@ export default function Main_Main() {
         </button>
 
         <button className="group px-8 py-4 bg-transparent border-2 border-teal-400 rounded-xl font-semibold text-teal-400 hover:bg-teal-400/10 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 min-w-[200px] justify-center"
-          onClick={() => redirect("/handleGuests")}>
+          onClick={() => redirect("/guest-user")}>
           <Zap className="w-5 h-5" />
           <span>Try as Guest</span>
         </button>

@@ -28,6 +28,7 @@ async function validGuestName() {
 
 export async function GET() {
   const guestEmail = await validGuestName();
-  dbTools.createGuest(guestEmail);
-  return NextResponse.json(await dbTools.getGuestUser(guestEmail));
+  await dbTools.createGuest(guestEmail);
+  const guest = await dbTools.getGuestUser(guestEmail)
+  return NextResponse.json(guest);
 }
