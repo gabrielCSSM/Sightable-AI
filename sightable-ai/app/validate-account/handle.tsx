@@ -36,3 +36,15 @@ export default async function validateUser(authCode: FormDataEntryValue) {
     return myRes;
   }
 }
+
+export async function resendCode() {
+  const session = await getServerSession(authOptions);
+  const email = session?.user.email;
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/auth/users/resend-code`,
+    {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }
+  );
+}

@@ -41,7 +41,9 @@ export default function CreateForm() {
           email: email,
           pass: password,
         });
-        redirect("/validate-account");
+        setTimeout(() => {
+          redirect("/validate-account");
+        }, 1000);
       }
     }
   }

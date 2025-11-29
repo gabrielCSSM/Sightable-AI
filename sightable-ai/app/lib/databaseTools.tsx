@@ -1,4 +1,13 @@
+import { randomInt } from "crypto";
 import ConnectionDB from "./connectorDB";
+
+function generateValidationCode() {
+  let code = "";
+  while (code.length <= 7) {
+    code += randomInt(10)
+  }
+  return code;
+}
 
 // METHODS FOR THE LOGGED USERS
 
@@ -118,7 +127,10 @@ export async function createGuest(email: String) {
 }
 
 export async function createPendingUser(email: String, pass: String) {
-  const valCode = "12345678";
+  
+  const valCode = generateValidationCode();
+  
+  
   if (await checkPendingUser(email)) {
     deletePendingUser(email);
     const query = await ConnectionDB.query(
@@ -200,6 +212,15 @@ export async function updateStatus(email: String) {
   );
   ConnectionDB.end;
   return query.rows[0];
+}
+
+export async function updateValidationCode(email: String) {
+  generateValidationCode()
+  const query = await ConnectionDB.query(
+    "UPDATE pendingusers SET validation_code='12345678' WHERE email='" + email + "';"
+  );
+  ConnectionDB.end;
+  return query.rowCount;
 }
 
 export async function deletePendingUser(email: String) {
