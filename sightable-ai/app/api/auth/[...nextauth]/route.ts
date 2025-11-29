@@ -25,14 +25,12 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const { type, email, password } = credentials ?? {};
         // console.log(credentials);
-
         switch (type) {
           case "user":
             if (!email || !password) throw new Error("No hay parametros");
 
-            if (await dbTools.checkPassword(email, password)) {
+            if ((await dbTools.checkPassword(email, password)) == 1) {
               let query = await dbTools.getFullLoggedUser(email, password);
-              
               query["role"] = "user";
               const user = query;
               return user;

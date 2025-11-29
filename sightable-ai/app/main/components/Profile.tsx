@@ -5,18 +5,19 @@ import {
   CreditCard,
   HelpCircle,
   LogOut,
+  CircleFadingArrowUp,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
+import { myUser } from "./myUser";
+import NavigationSideBar from "./NavigationSideBar";
 
 export default function ProfileSide({
   open,
   myUser,
 }: {
   open: boolean;
-  myUser: Object;
+  myUser: myUser;
 }) {
-  console.log(myUser["email"]);
   return (
     <div
       className={`fixed top-0 right-0 h-full w-80 bg-slate-900/95 backdrop-blur-xl border-l-2 border-slate-800 shadow-2xl transform transition-transform duration-300 z-50 ${
@@ -41,12 +42,21 @@ export default function ProfileSide({
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="bg-slate-800/50 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-teal-400">
-              {myUser["files"] ?? "0"}
-            </p>
-            <p className="text-xs text-slate-500">Files Processed</p>
-          </div>
+          {myUser["role"] == "user" ? (
+            <div className="bg-slate-800/50 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-teal-400">
+                {myUser["files"] ?? "0"}
+              </p>
+              <p className="text-xs text-slate-500">Files Processed</p>
+            </div>
+          ) : (
+            <div className="bg-slate-800/50 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-teal-500">
+                {myUser["tries"] ?? "0"}
+              </p>
+              <p className="text-xs text-slate-500">Files Remaining</p>
+            </div>
+          )}
           <div className="bg-slate-800/50 rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-purple-400">
               {myUser["summaries"] ?? "0"}
@@ -55,28 +65,7 @@ export default function ProfileSide({
           </div>
         </div>
 
-        <nav className="space-y-2">
-          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors text-left">
-            <Settings className="w-5 h-5 text-teal-400" />
-            <span>Settings</span>
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors text-left">
-            <CreditCard className="w-5 h-5 text-teal-400" />
-            <span>Subscription</span>
-          </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors text-left">
-            <HelpCircle className="w-5 h-5 text-teal-400" />
-            <span>Help & Support</span>
-          </button>
-          <div className="border-t border-slate-800 my-4"></div>
-          <button
-            onClick={() => signOut()}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-500/20 rounded-xl transition-colors text-left text-red-400"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Log Out</span>
-          </button>
-        </nav>
+        <NavigationSideBar myUser={myUser} />
       </div>
     </div>
   );

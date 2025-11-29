@@ -16,6 +16,8 @@ export default async function Page() {
       const myUser = {
         user: session.user.email.split("@")[0],
         email: session.user.email,
+        role: session.user.role,
+        tries: (session.user.role == "guest")? 3 : -1,
         files: 0,
         summaries: 0,
       };

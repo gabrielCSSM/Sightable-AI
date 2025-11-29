@@ -1,11 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import DebugText from "../debugText";
-import ChatBotCard from "./options/chatbot/chatbotOptionCard";
-import NotesCard from "./options/notes/noteOptionCard";
-import SummaryCard from "./options/summary/summaryOptionCard";
-import { handleFileUpload } from "./options/notes/notes";
+import { handleFileUpload } from "./handler";
 import logo from "@/public/logo_sightable.png";
 
 import {
@@ -22,40 +18,14 @@ import {
   CheckCircle,
 } from "lucide-react";
 import ProfileSide from "./components/Profile";
-
-export function UploadFile({
-  action,
-}: {
-  action: (formData: FormData) => void;
-}) {
-  const [selectedFile, setSelectedFile] = useState();
-
-  return (
-    <div className="p-1 border border-amber-50 rounded-2xl flex flex-col items-center-safe">
-      <form action={action}>
-        <input type="file" id="fileToUpload" name="fileToUpload" />
-        <br></br>
-        <button className="p-2 border-2 border-red-50">Upload</button>
-      </form>
-      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-16 gap-16 sm:p-20">
-        <DebugText PageTitle="MAIN" />
-        <div className="grid grid-cols-3 gap-16">
-          <NotesCard />
-          <SummaryCard />
-          <ChatBotCard available={false} />
-        </div>
-        <UploadFile action={handleFileUpload} />
-      </div>
-    </div>
-  );
-}
+import { myUser } from "./components/myUser";
 
 export default function RenderUI({
   available,
   myUser,
 }: {
   available: boolean;
-  myUser: Object;
+  myUser: myUser;
 }) {
   const [profile, profileOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -63,8 +33,9 @@ export default function RenderUI({
   const [selectedMode, setSelectedMode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef(null);
+  const [response, setResponse] = useState("");
 
-  const MAX_FILES = 5;
+  const MAX_FILES = myUser["role"] == "user" ? 5 : 3;
   const MAX_SIZE_MB = 150;
   const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
@@ -96,7 +67,10 @@ export default function RenderUI({
       name: "Chatbot",
       icon: MessageSquare,
       color: "amber",
-      description: "Ask questions about your content",
+      description:
+        myUser["role"] == "user"
+          ? "Ask questions about your content"
+          : "Not available for guests users.",
       gradient: "from-amber-500 to-amber-400",
       bgColor: "bg-amber-500/20",
       borderColor: "border-amber-400/30",
@@ -191,9 +165,10 @@ export default function RenderUI({
     setIsProcessing(true);
 
     // Simulate processing
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsProcessing(false);
-      handleFileUpload(uploadedFiles);
+      const data = await handleFileUpload(uploadedFiles);
+      setResponse(data["summary"]);
     }, 2000);
   };
 
@@ -382,8 +357,9 @@ export default function RenderUI({
                         isSelected
                           ? `${mode.borderColor} shadow-lg transform scale-105`
                           : "border-slate-700 hover:border-slate-600 hover:transform hover:scale-[1.02]"
-                      }`}
-                    >
+                      }`}>
+                
+
                       {isSelected && (
                         <div
                           className={`absolute inset-0 bg-gradient-to-br ${mode.bgColor} rounded-2xl`}
@@ -442,6 +418,10 @@ export default function RenderUI({
                   </>
                 )}
               </button>
+            </div>
+
+            <div className="border-2 rounded-3xl border-amber-50">
+              {response}
             </div>
           </>
         )}

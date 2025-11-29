@@ -13,7 +13,7 @@ CREATE TABLE if NOT EXISTS guestUsers(id BIGINT GENERATED ALWAYS AS IDENTITY, em
 -- Tabla usuarios pendientes.
 CREATE TABLE if NOT EXISTS pendingUsers(id BIGINT GENERATED ALWAYS AS IDENTITY, email VARCHAR(320) UNIQUE, password VARCHAR(132) not null, validation_code VARCHAR(8) not null,validated BOOLEAN not null);
 -- Datos de prueba
-INSERT INTO loggedUsers(email, password) VALUES ('test@sightable.ai',  crypt('test123.', gen_salt('sha256crypt')));
+INSERT INTO loggedUsers(email, password) VALUES ('admin@sightable.ai',  crypt('adminadmin.', gen_salt('sha256crypt')));
 
 INSERT INTO guestusers (email, characteristic, remaining_uses) VALUES ('guest12345678@sightable.ai', 'Something characteristic', 3);
 INSERT INTO guestusers (email, characteristic, remaining_uses) VALUES ('guest87654321@sightable.ai', 'Something characteristic', 1);

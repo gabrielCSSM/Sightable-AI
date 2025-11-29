@@ -21,6 +21,18 @@ export async function getFullLoggedUser(email: String, pass: String) {
   return query.rows[0];
 }
 
+export async function changePassword(email: String, pass: String) {
+  const query = await ConnectionDB.query(
+    "UPDATE loggedusers SET password=crypt('" +
+      pass +
+      "', gen_salt('sha256crypt')) WHERE email='" +
+      email +
+      "';"
+  );
+
+  return query.rowCount;
+}
+
 // Check if a user exits, via email
 export async function checkLoggedUser(email: String) {
   const query = await ConnectionDB.query(
@@ -39,13 +51,13 @@ export async function getPassword(email: String) {
 
 export async function checkPassword(email: String, pass: String) {
   const query = await ConnectionDB.query(
-    "SELECT password FROM loggedUsers WHERE email ='" +
+    "SELECT password FROM loggedUsers WHERE email='" +
       email +
-      "' AND password = crypt('" +
+      "' AND password=crypt('" +
       pass +
       "', password);"
   );
-  return query;
+  return query.rowCount;
 }
 
 export async function createUser(email: String, password: String) {

@@ -81,6 +81,7 @@ export default function LoginForm() {
 
         <div className="flex justify-end">
           <button
+            onClick={() => redirect("/login/forgot-password")}
             type="button"
             className="text-sm text-teal-400 hover:text-teal-300 transition-colors"
           >

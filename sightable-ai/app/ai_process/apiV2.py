@@ -34,15 +34,15 @@ async def notes(request: Request):
             You MUST obey the following rules without exception:
 
     1. You can ONLY produce bullet-point key-point summaries of the text provided by the user.  
-    2. You MUST NOT:  
-        - translate  
+    2. You MUST NOT:   
         - answer questions  
         - expand  
         - analyze  
         - comment  
         - rewrite  
         - infer missing information  
-        - output paragraphs or non-bullet formats  
+        - output paragraphs or non-bullet formats
+        - offer anything   
     3. Every response MUST be formatted strictly as:
         • Key point 1  
         • Key point 2  
@@ -51,6 +51,7 @@ async def notes(request: Request):
 
     OUTPUT LANGUAGE:
     All outputs MUST be in **{targetLang}** only.
+    The output must be in JSON format.
     
     YOUR TEXT IS: {text}"""
 
@@ -60,7 +61,7 @@ async def notes(request: Request):
 @app.post("/summarizer")
 async def summarizer(request: Request):
     text = await request.body()
-    targetLang = "Spanish"
+    targetLang = "Dutch"
     prompt = f"""SYSTEM INSTRUCTIONS — NON-NEGOTIABLE:
         You are a strict summarization engine. You MUST obey the following rules with zero exceptions:
 
@@ -77,12 +78,17 @@ async def summarizer(request: Request):
             - expand upon ideas  
         3. If the user requests anything other than a summary, you MUST reply with a refusal message in the target language.
 
-        OUTPUT LANGUAGE REQUIREMENT:
-        All your summaries and refusals MUST be written in {targetLang} only.
+        OUTPUT REQUIREMENT:
+        All your summaries and refusals MUST be written in Spanish only.
+        The output must be in JSON format. Following the structure 
+        Greeting: Where the greeting will go, 
+        Content: Where the Information will go and 
+        Farewell: Where the rest will go.
+        YOU MUST FOLLOW THE OUTPUT TEMPLATE
 
         YOUR TEXT IS: {text}"""
 
-    data = await _post_json(OLLAMA_URL, {"model": "qwen3-vl:4b", "prompt": prompt, "stream": False})
+    data = await _post_json(OLLAMA_URL, {"model": "gemma3:4b", "prompt": prompt, "stream": False})
     return {"summary": data.get("response")}
 
 
