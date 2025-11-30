@@ -1,4 +1,4 @@
-# :eye: Sigthable Setup Guide
+# :eye: Sigthable AI - Setup Guide
 
 A comprehensive guide to get you up and running with this full-stack application featuring Docker, Node.js, Python, and AI capabilities.
 
