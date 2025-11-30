@@ -1,9 +1,11 @@
 "use server";
 
-import { writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "pdfjs-dist/legacy/build/pdf.worker.mjs";
+import mammoth from "mammoth";
+import path from "path";
 
 async function handlePDF(fileBuffer: Buffer) {
   let textContent = "";
@@ -24,42 +26,28 @@ async function handlePDF(fileBuffer: Buffer) {
 }
 
 async function handleTXT(fileBuffer: Buffer) {
-  let textContent = "";
-  const buffArr = new Uint8Array(fileBuffer);
-
-  const loadingTask = pdfjsLib.getDocument({ data: buffArr });
-  const pdf = await loadingTask.promise;
-
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const pageText = content.items.map((it: any) => it.str).join(" ");
-    textContent += pageText + "\n";
-  }
-
-  await pdf.destroy?.();
-  return textContent;
+  return fileBuffer.toString("utf8");
 }
 
 async function handleDOCX(fileBuffer: Buffer) {
-  let textContent = "";
-  const buffArr = new Uint8Array(fileBuffer);
-
-  const loadingTask = pdfjsLib.getDocument({ data: buffArr });
-  const pdf = await loadingTask.promise;
-
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const pageText = content.items.map((it: any) => it.str).join(" ");
-    textContent += pageText + "\n";
-  }
-
-  await pdf.destroy?.();
-  return textContent;
+  const { value } = await mammoth.extractRawText({ buffer: fileBuffer });
+  return value || "";
 }
 export async function handleFileUpload(filesData: Array<T>, option: string) {
   const results: Array<any> = [];
+  
+  const dataDir = path.join(process.cwd(), "data");
+  
+  try {
+    mkdirSync(dataDir, { recursive: true });
+  } catch (err) {
+    console.error("Could not create data directory:", err);
+  }
+    // normalize option once
+  if (option === "summary-chat") {
+    option = "summarizer";
+  }
+
   for (const fl of filesData) {
     try {
       const file = fl["file"];
@@ -86,10 +74,7 @@ export async function handleFileUpload(filesData: Array<T>, option: string) {
           break;
       }
       
-      if(option === "summary-chat") {
-        option = "summarizer";
-      }
-
+      console.log(responseText)
       const res = await fetch(`${process.env.NEXT_PUBLIC_AI_URL}${option}`, {
         method: "POST",
         body: JSON.stringify({ fileName ,responseText }),

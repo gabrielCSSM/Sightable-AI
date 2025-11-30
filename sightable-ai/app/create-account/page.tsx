@@ -1,7 +1,6 @@
 "use client";
 import { redirect } from "next/navigation";
 import logo from "@/public/logo_sightable.png";
-import LanguageSelector from "../components/LanguageSelector";
 import CreateForm from "./components/CreateForm";
 
 
@@ -16,7 +15,6 @@ export default function CreatePage() {
         ></div>
       </div>
 
-      <LanguageSelector />
 
       <div className="absolute top-8 left-8 z-20">
         <button

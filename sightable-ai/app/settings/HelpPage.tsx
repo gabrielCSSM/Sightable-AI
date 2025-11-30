@@ -10,16 +10,27 @@ export default function HelpPage() {
   });
   const handleSubmitHelp = () => {
     setIsSaving(true);
-    setTimeout(() => {
+    if (
+      formData.helpEmail == "" ||
+      formData.helpMessage == "" ||
+      formData.helpName == "" ||
+      formData.helpSubject == ""
+    ) {
+      alert("Revisa los datos");
       setIsSaving(false);
-      alert("Your message has been sent! We'll get back to you soon.");
-      setFormData((prev) => ({
-        helpName: "",
-        helpEmail: "",
-        helpSubject: "",
-        helpMessage: "",
-      }));
-    }, 1500);
+    } else {
+      setTimeout(() => {
+        setIsSaving(false);
+        setFormData((prev) => ({
+          helpName: "",
+          helpEmail: "",
+          helpSubject: "",
+          helpMessage: "",
+        }));
+
+        alert("Formulario enviado");
+      }, 1500);
+    }
   };
   const [isSaving, setIsSaving] = useState(false);
   const handleSave = () => {
@@ -152,17 +163,17 @@ export default function HelpPage() {
           <div className="space-y-2 text-sm text-slate-400">
             <p>
               📧 Email:{" "}
-              <a
-                href=""
-                className="text-teal-400 hover:text-teal-300"
-              >
+              <a href="" className="text-teal-400 hover:text-teal-300">
                 support@sightable.ai
               </a>
             </p>
             <p>💬 Live Chat: Available Mon-Fri, 8:00-16:00pm GMT</p>
             <p>
               📚 Documentation:{" "}
-              <a href="https://github.com/gabrielCSSM/Sightable-AI" className="text-teal-400 hover:text-teal-300">
+              <a
+                href="https://github.com/gabrielCSSM/Sightable-AI"
+                className="text-teal-400 hover:text-teal-300"
+              >
                 https://github.com/gabrielCSSM/Sightable-AI
               </a>
             </p>

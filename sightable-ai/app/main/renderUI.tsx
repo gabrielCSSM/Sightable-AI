@@ -168,8 +168,8 @@ export default function RenderUI({ myUser }: { myUser: myUser }) {
 
     setTimeout(async () => {
       setIsProcessing(false);
-      /*const data = await handleFileUpload(uploadedFiles, selectedMode);
-      setResponse(data);*/
+      const data = await handleFileUpload(uploadedFiles, selectedMode);
+      setResponse(data);
       if (myUser.role == "guest") {
         myUser.files -= 1;
       } else {
@@ -331,17 +331,6 @@ export default function RenderUI({ myUser }: { myUser: myUser }) {
                   );
                 })}
               </div>
-
-              {uploadedFiles.length >= 5 ? (
-                <div />
-              ) : (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="mt-4 w-full py-3 border-2 border-dashed border-slate-600 rounded-xl text-slate-400 hover:border-teal-400 hover:text-teal-400 transition-all duration-300 font-semibold"
-                >
-                  + Add More Files
-                </button>
-              )}
             </div>
 
             {/* Mode Selection */}

@@ -1,6 +1,5 @@
 "use client";
 import { redirect } from "next/navigation";
-import LanguageSelector from "../components/LanguageSelector";
 import logo from "@/public/logo_sightable.png";
 import ValidateForm from "./ValidateForm";
 
@@ -14,8 +13,6 @@ export default function renderValidation() {
           style={{ animationDelay: "1s" }}
         ></div>
       </div>
-
-      <LanguageSelector />
 
       <div className="absolute top-8 left-8 z-20">
         <button

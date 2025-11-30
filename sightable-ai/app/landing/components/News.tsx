@@ -1,7 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import React, { useState } from "react";
 export default function Main_News() {
-  const [language, setLanguage] = useState("EN");
   const [hoveredCard, setHoveredCard] = useState(null);
   const news = [
     {
