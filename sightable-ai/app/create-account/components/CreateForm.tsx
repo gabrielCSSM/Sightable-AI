@@ -10,6 +10,7 @@ export default function CreateForm() {
 
   const [email, setEmail] = useState("");
   const [error_email, setErrorEmail] = useState("");
+  const [checked, setCheck] = useState(false);
 
   const [password, setPassword] = useState("");
   const [error_pass, setPassError] = useState("");
@@ -30,20 +31,24 @@ export default function CreateForm() {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-
-      if (!res.ok) {
-        setError("Usuario ya existe!");
-      } else {
+      if (checked) {
         setError("");
-        signIn("credentials", {
-          redirect: false,
-          type: "pending",
-          email: email,
-          pass: password,
-        });
-        setTimeout(() => {
-          redirect("/validate-account");
-        }, 1000);
+        if (!res.ok) {
+          setError("Usuario ya existe!");
+        } else {
+          setError("");
+          signIn("credentials", {
+            redirect: false,
+            type: "pending",
+            email: email,
+            pass: password,
+          });
+          setTimeout(() => {
+            redirect("/validate-account");
+          }, 1000);
+        }
+      } else {
+        setError("Acepta los terminos!");
       }
     }
   }
@@ -148,6 +153,8 @@ export default function CreateForm() {
       <div className="flex items-start gap-3 pt-2 mb-3">
         <input
           type="checkbox"
+          onChange={() => {
+            setCheck(!checked); !checked ? setError("") : setError("Acepta los terminos")}}
           id="terms"
           className="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-800 text-teal-400 focus:ring-teal-400 focus:ring-2"
         />
