@@ -203,10 +203,10 @@ export default function UserLibrary() {
                 className="text-4xl font-bold"
                 style={{ fontFamily: "Space Grotesk, sans-serif" }}
               >
-                Archivo
+                Library
               </h1>
               <p className="text-slate-400 mt-1">
-                Tus notas y resumenes archivados
+                Your notes and summaries stored.
               </p>
             </div>
           </div>
