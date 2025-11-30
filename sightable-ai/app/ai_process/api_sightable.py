@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException, status
+from fastapi import FastAPI, Request, Form
 import base64
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -62,12 +62,6 @@ async def summarizer(request: Request):
 
     data = await _post_json(OLLAMA_URL, {"model": "gemma3:4b", "prompt": prompt, "stream": False})
     return {"archive": name, "summary": data.get("response")}
-
-
-
-
-
-
 
 @app.post("/chat")
 async def chat(context: str = Form(...), question: str = Form(...)):

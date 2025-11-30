@@ -22,13 +22,7 @@ import ProfileSide from "./components/Profile";
 import { myUser } from "./components/myUser";
 import RenderResponse from "./components/ResponseRender";
 
-export default function RenderUI({
-  available,
-  myUser,
-}: {
-  available: boolean;
-  myUser: myUser;
-}) {
+export default function RenderUI({ myUser }: { myUser: myUser }) {
   const [profile, profileOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -40,7 +34,6 @@ export default function RenderUI({
   const MAX_FILES = myUser["role"] == "user" ? 5 : 3;
   const MAX_SIZE_MB = 150;
   const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-
   const modes = [
     {
       id: "notes",
@@ -164,14 +157,25 @@ export default function RenderUI({
 
   const handleProcess = () => {
     if (!selectedMode) return;
+
     setIsProcessing(true);
 
-    // Simulate processing
+    if (myUser.files <= 0 && myUser.role == "guest") {
+      setIsProcessing(false);
+      setSelectedMode("");
+      alert("Limite alcanzado");
+    }
+
     setTimeout(async () => {
       setIsProcessing(false);
-      const data = await handleFileUpload(uploadedFiles, selectedMode);
-      setResponse(data);
-      //setResponse("a")
+      /*const data = await handleFileUpload(uploadedFiles, selectedMode);
+      setResponse(data);*/
+      if (myUser.role == "guest") {
+        myUser.files -= 1;
+      } else {
+        myUser.files += uploadedFiles.length;
+      }
+      myUser.summaries += 1;
     }, 2000);
   };
 
@@ -348,58 +352,73 @@ export default function RenderUI({
               >
                 Choose Your Mode
               </h3>
-              <div className="grid md:grid-cols-3 gap-6">
+
+              <div
+                className={
+                  myUser.role == "guest"
+                    ? "grid md:grid-cols-2 gap-6"
+                    : "grid md:grid-cols-3 gap-6"
+                }
+              >
                 {modes.map((mode) => {
                   const Icon = mode.icon;
                   const isSelected = selectedMode === mode.id;
                   return (
-                    <button
-                      key={mode.id}
-                      onClick={() =>
-                        response.length == 0
-                          ? setSelectedMode(mode.id)
-                          : setResponse([])
-                      }
-                      className={`relative bg-slate-800/40 backdrop-blur-sm border-2 rounded-2xl p-6 transition-all duration-300 group ${
-                        isSelected
-                          ? `${mode.borderColor} shadow-lg transform scale-105`
-                          : "border-slate-700 hover:border-slate-600 hover:transform hover:scale-[1.02]"
-                      }`}
-                    >
-                      {isSelected && (
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${mode.bgColor} rounded-2xl`}
-                        ></div>
-                      )}
-
-                      <div className="relative z-10">
-                        <div
-                          className={`w-16 h-16 bg-gradient-to-br ${mode.gradient} rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg`}
+                    <>
+                      {myUser.role == "guest" && mode.id == "summary-chat" ? (
+                        <></>
+                      ) : (
+                        <button
+                          key={mode.id}
+                          onClick={() =>
+                            response.length == 0
+                              ? setSelectedMode(mode.id)
+                              : setResponse([])
+                          }
+                          className={`relative bg-slate-800/40 backdrop-blur-sm border-2 rounded-2xl p-6 transition-all duration-300 group ${
+                            isSelected
+                              ? `${mode.borderColor} shadow-lg transform scale-105`
+                              : "border-slate-700 hover:border-slate-600 hover:transform hover:scale-[1.02]"
+                          }`}
                         >
-                          <Icon className="w-8 h-8 text-white" />
-                        </div>
+                          {isSelected && (
+                            <div
+                              className={`absolute inset-0 bg-gradient-to-br ${mode.bgColor} rounded-2xl`}
+                            ></div>
+                          )}
 
-                        <h4
-                          className="text-xl font-bold mb-2"
-                          style={{ fontFamily: "Space Grotesk, sans-serif" }}
-                        >
-                          {mode.name}
-                        </h4>
+                          <div className="relative z-10">
+                            <div
+                              className={`w-16 h-16 bg-gradient-to-br ${mode.gradient} rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg`}
+                            >
+                              <Icon className="w-8 h-8 text-white" />
+                            </div>
 
-                        <p className="text-slate-400 text-sm">
-                          {mode.description}
-                        </p>
+                            <h4
+                              className="text-xl font-bold mb-2"
+                              style={{
+                                fontFamily: "Space Grotesk, sans-serif",
+                              }}
+                            >
+                              {mode.name}
+                            </h4>
 
-                        {isSelected && (
-                          <div className="mt-4 flex items-center justify-center gap-2 text-teal-400">
-                            <CheckCircle className="w-5 h-5" />
-                            <span className="font-semibold text-sm">
-                              Selected
-                            </span>
+                            <p className="text-slate-400 text-sm">
+                              {mode.description}
+                            </p>
+
+                            {isSelected && (
+                              <div className="mt-4 flex items-center justify-center gap-2 text-teal-400">
+                                <CheckCircle className="w-5 h-5" />
+                                <span className="font-semibold text-sm">
+                                  Selected
+                                </span>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </button>
+                        </button>
+                      )}
+                    </>
                   );
                 })}
               </div>

@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
 
             if (await dbTools.checkGuestUser(email)) {
               let query = await dbTools.getGuestUser(email);
+              //console.log(query)
               query["role"] = "guest";
               const user = query;
               return user;
@@ -65,16 +66,23 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // Initial sign in
       if (user) {
-        token.role = user.role;
+        token.user = user;
       }
+
+      // Handle session updates
+      if (trigger === "update" && session) {
+        token.user = session.user;
+      }
+
       return token;
     },
-
     async session({ session, token }) {
       if (token) {
         session.user.role = token.role;
+        session.user = token.user;
       }
       return session;
     },

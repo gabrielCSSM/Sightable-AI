@@ -21,7 +21,7 @@ export async function getAllLoggedUsers() {
 // Get all data of the user, via email and password
 export async function getFullLoggedUser(email: String, pass: String) {
   const query = await ConnectionDB.query(
-    "SELECT email FROM loggedUsers WHERE email ='" +
+    "SELECT * FROM loggedUsers WHERE email ='" +
       email +
       "' AND password = crypt('" +
       pass +
@@ -71,11 +71,11 @@ export async function checkPassword(email: String, pass: String) {
 
 export async function createUser(email: String, password: String) {
   const query = await ConnectionDB.query(
-    "INSERT INTO loggedUsers (email, password) VALUES ('" +
+    "INSERT INTO loggedUsers (email, password, files_processed, summaries_made) VALUES ('" +
       email +
       "',  crypt('" +
       password +
-      "', gen_salt('sha256crypt')));"
+      "', gen_salt('sha256crypt')), 0, 0);"
   );
   ConnectionDB.end;
   return query.rows[0];
@@ -100,15 +100,26 @@ export async function checkGuestUser(email: String) {
   return query.rowCount;
 }
 
-export async function getGuestCharacteristic(email: String) {
+export async function updateGuestFiles(email: String, fileCount: number) {
   const query = await ConnectionDB.query(
-    "SELECT characteristic FROM guestUsers WHERE email ='" + email + "';"
+    "SELECT files_processed FROM guestUsers WHERE email ='" + email + "';"
   );
+
+  const minusFiles = query.rows[0]
+  console.log(minusFiles)
+  
+  const query2 = await ConnectionDB.query(
+    "UPDATE files_processed SET files_processed=" + fileCount + " FROM guestUsers WHERE email ='" + email + "';"
+  );
+  const query3 = await ConnectionDB.query(
+    "UPDATE files_processed SET files_processed=" + fileCount + " FROM guestUsers WHERE email ='" + email + "';"
+  );
+
   return query.rows;
 }
 export async function getGuestRemainingUses(email: String) {
   const query = await ConnectionDB.query(
-    "SELECT remaining_uses FROM guestUsers WHERE email ='" + email + "';"
+    "SELECT files_processed FROM guestUsers WHERE email ='" + email + "';"
   );
   return query.rows;
 }
@@ -116,11 +127,7 @@ export async function getGuestRemainingUses(email: String) {
 export async function createGuest(email: String) {
   const char = "TEST";
   const query = await ConnectionDB.query(
-    "INSERT INTO guestusers (email, characteristic, remaining_uses) VALUES ('" +
-      email +
-      "', '" +
-      char +
-      "', 3);"
+    "INSERT INTO guestusers (email, files_processed, summaries_made) VALUES ('" + email +"', 3, 0);"
   );
   ConnectionDB.end;
   return query.rows;

@@ -45,21 +45,21 @@ export default function ProfileSide({
           {myUser["role"] == "user" ? (
             <div className="bg-slate-800/50 rounded-xl p-4 text-center">
               <p className="text-2xl font-bold text-teal-400">
-                {myUser["files"] ?? "0"}
+                {myUser["files"] ?? 0}
               </p>
               <p className="text-xs text-slate-500">Files Processed</p>
             </div>
           ) : (
             <div className="bg-slate-800/50 rounded-xl p-4 text-center">
               <p className="text-2xl font-bold text-teal-500">
-                {myUser["tries"] ?? "0"}
+                {myUser["files"] ?? 3}
               </p>
               <p className="text-xs text-slate-500">Files Remaining</p>
             </div>
           )}
           <div className="bg-slate-800/50 rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-purple-400">
-              {myUser["summaries"] ?? "0"}
+              {myUser["summaries"] ?? 0}
             </p>
             <p className="text-xs text-slate-500">Summaries</p>
           </div>
