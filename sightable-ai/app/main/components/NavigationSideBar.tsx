@@ -30,7 +30,7 @@ export default function NavigationSideBar({ myUser }: { myUser: myUser }) {
             <span>Subscription</span>
           </Link>
 
-          <Link href={"/library"} 
+          <Link href={`/library?data=${encoded}`} 
           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-colors text-left">
             <Book className="w-5 h-5 text-teal-400" />
             <span>Library</span>

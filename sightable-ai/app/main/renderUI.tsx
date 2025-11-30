@@ -191,7 +191,7 @@ export default function RenderUI({ myUser }: { myUser: myUser }) {
 
       <header className="relative z-10 px-8 py-6 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-cyan-300 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-teal-900 to-cyan-600 rounded-full flex items-center justify-center">
             <img src={logo.src}></img>
           </div>
           <span
@@ -449,7 +449,7 @@ export default function RenderUI({ myUser }: { myUser: myUser }) {
             </div>
             {response.length != 0 ? (
               <div className="mt-5">
-                <RenderResponse response={response} option={selectedMode} />
+                <RenderResponse response={response} option={selectedMode} myUser={myUser} />
               </div>
             ) : (
               <></>

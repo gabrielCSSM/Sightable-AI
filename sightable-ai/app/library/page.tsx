@@ -1,74 +1,98 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Library, FileText, Sparkles, Clock, User, X } from "lucide-react";
 import logo from "@/public/logo_sightable.png";
-import { redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { myUser } from "../main/components/myUser";
 
-export default function UserLibrary({myUser, items}: {myUser: myUser, items: []}) {
+export default function UserLibrary() {
   const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
   const [selectedItem, setSelectedItem] = useState(null);
+  const [libraryItems, setLibraryItems] = useState<Array<any>>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useSearchParams();
+  const data = router.get("data");
 
-  // Sample data - would come from database
-  const libraryItems = [
-    {
-      id: 1,
-      type: "notes",
-      title: "Machine Learning Fundamentals",
-      content:
-        "• Neural networks are computational models inspired by biological neurons\n• Supervised learning requires labeled training data\n• Deep learning uses multiple layers to extract features\n• Backpropagation is the key algorithm for training networks",
-      created_at: "2024-11-28T10:30:00",
-      updated_at: "2024-11-28T10:30:00",
-    },
-    {
-      id: 2,
-      type: "summary",
-      title: "Climate Change Report 2024",
-      summary_content:
-        "The 2024 Climate Change Report highlights accelerating global temperature increases and their widespread impacts on ecosystems and human societies. Key findings include rising sea levels, increased frequency of extreme weather events, and urgent recommendations for immediate policy action to reduce carbon emissions.",
-      original_content: "Full report content would be stored here...",
-      created_at: "2024-11-27T15:45:00",
-      updated_at: "2024-11-27T15:45:00",
-    },
-    {
-      id: 3,
-      type: "notes",
-      title: "React Hooks Best Practices",
-      content:
-        "• useState for component state management\n• useEffect for side effects and lifecycle\n• useContext for global state without prop drilling\n• Custom hooks for reusable logic\n• Always follow the Rules of Hooks",
-      created_at: "2024-11-26T09:15:00",
-      updated_at: "2024-11-27T14:20:00",
-    },
-    {
-      id: 4,
-      type: "summary",
-      title: "Quantum Computing Introduction",
-      summary_content:
-        "Quantum computing represents a paradigm shift in computational power by leveraging quantum mechanical phenomena like superposition and entanglement. Unlike classical bits, qubits can exist in multiple states simultaneously, enabling exponential speedups for specific problem classes including cryptography, optimization, and molecular simulation.",
-      original_content: "Full quantum computing lecture notes...",
-      created_at: "2024-11-25T13:00:00",
-      updated_at: "2024-11-25T13:00:00",
-    },
-    {
-      id: 5,
-      type: "notes",
-      title: "Database Design Principles",
-      content:
-        "• Normalization reduces data redundancy\n• Primary keys uniquely identify records\n• Foreign keys establish relationships\n• Indexes improve query performance\n• ACID properties ensure transaction reliability",
-      created_at: "2024-11-24T11:30:00",
-      updated_at: "2024-11-26T16:45:00",
-    },
-    {
-      id: 6,
-      type: "summary",
-      title: "History of the Renaissance",
-      summary_content:
-        "The Renaissance was a cultural movement spanning the 14th-17th centuries, marking the transition from medieval to modern Europe. Characterized by renewed interest in classical learning, artistic innovation, and humanistic philosophy, this period produced landmark achievements in art, science, and literature that continue to influence Western civilization.",
-      original_content: "Complete Renaissance history document...",
-      created_at: "2024-11-23T08:20:00",
-      updated_at: "2024-11-23T08:20:00",
-    },
-  ];
+  const myUser = React.useMemo(() => {
+    try {
+      return data ? JSON.parse(atob(data)) : null;
+    } catch {
+      return null;
+    }
+  }, [data]);
+
+  useEffect(() => {
+    // fetch saved notes/summaries and map them into libraryItems shape
+    if (!myUser || !myUser.email) return;
+
+    const fetchLibrary = async () => {
+      try {
+        const params = new URLSearchParams({ user: myUser["email"] });
+        const res = await fetch(`/api/auth/users/files?${params.toString()}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          console.error(
+            "Failed to load library:",
+            res.status,
+            await res.text()
+          );
+          return;
+        }
+
+        const payload = await res.json();
+
+        // payload might be [notesArray, summariesArray] or an object — handle both
+        let notesArr: any[] = [];
+        let summariesArr: any[] = [];
+
+        if (Array.isArray(payload)) {
+          notesArr = Array.isArray(payload[0]) ? payload[0] : [];
+          summariesArr = Array.isArray(payload[1]) ? payload[1] : [];
+        } else {
+          notesArr = Array.isArray(payload.notes) ? payload.notes : [];
+          summariesArr = Array.isArray(payload.summaries)
+            ? payload.summaries
+            : [];
+        }
+
+        const mapped: any[] = [];
+        let idCounter = 1;
+
+        // map notes -> library item shape
+        for (const n of notesArr) {
+          mapped.push({
+            id: n.id ?? idCounter++,
+            type: "notes",
+            title: n.title ?? n.archive ?? "Untitled note",
+            content: n.content ?? n.body ?? "",
+            created_at: n.created_at ?? n.createdAt ?? n.created ?? "",
+            updated_at: n.updated_at ?? n.updatedAt ?? n.updated ?? "",
+          });
+        }
+
+        // map summaries -> library item shape
+        for (const s of summariesArr) {
+          mapped.push({
+            id: s.id ?? idCounter++,
+            type: "summary",
+            title: s.title ?? s.archive ?? "Untitled summary",
+            summary_content: s.summary_content ?? s.content ?? s.summary ?? "",
+            created_at: s.created_at ?? s.createdAt ?? s.created ?? "",
+            updated_at: s.updated_at ?? s.updatedAt ?? s.updated ?? "",
+          });
+        }
+
+        setLibraryItems(mapped);
+      } catch (err) {
+        console.error("Error fetching library:", err);
+      }
+    };
+
+    fetchLibrary();
+  }, [myUser]);
 
   const renderGridView = () => (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,65 +155,6 @@ export default function UserLibrary({myUser, items}: {myUser: myUser, items: []}
     </div>
   );
 
-  const renderListView = () => (
-    <div className="space-y-4">
-      {libraryItems.map((item) => (
-        <div
-          key={item.id}
-          className="group bg-slate-800/30 backdrop-blur-sm border-2 border-slate-700 rounded-xl p-5 hover:border-slate-600 transition-all duration-300 cursor-pointer"
-          onClick={() => setSelectedItem(item)}
-        >
-          <div className="flex items-start gap-4">
-            {/* Icon */}
-            <div
-              className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                item.type === "notes"
-                  ? "bg-gradient-to-br from-purple-500 to-purple-400"
-                  : "bg-gradient-to-br from-pink-500 to-pink-400"
-              }`}
-            >
-              {item.type === "notes" ? (
-                <FileText className="w-6 h-6 text-white" />
-              ) : (
-                <Sparkles className="w-6 h-6 text-white" />
-              )}
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between mb-2">
-                <h3
-                  className="text-lg font-bold"
-                  style={{ fontFamily: "Space Grotesk, sans-serif" }}
-                >
-                  {item.title}
-                </h3>
-                <div className="flex items-center gap-2 ml-4">
-                  <div
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      item.type === "notes"
-                        ? "bg-purple-500/20 text-purple-300"
-                        : "bg-pink-500/20 text-pink-300"
-                    }`}
-                  >
-                    {item.type === "notes" ? "Notes" : "Summary"}
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-slate-400 line-clamp-2 mb-3">
-                {item.type === "notes" ? item.content : item.summary_content}
-              </p>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <Clock className="w-4 h-4" />
-                <span>{item.updated_at}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
       {/* Ambient background effects */}
@@ -213,7 +178,7 @@ export default function UserLibrary({myUser, items}: {myUser: myUser, items: []}
             className="text-xl font-bold"
             style={{ fontFamily: "Space Grotesk, sans-serif" }}
           >
-            Duckvision
+            Sightable AI
           </span>
         </div>
 
@@ -221,7 +186,7 @@ export default function UserLibrary({myUser, items}: {myUser: myUser, items: []}
           <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-cyan-300 rounded-full flex items-center justify-center">
             <User className="w-4 h-4 text-slate-900" />
           </div>
-          <span className="font-semibold">Alex J.</span>
+          <span className="font-semibold">{myUser["user"]}</span>
         </button>
       </header>
 
@@ -238,10 +203,10 @@ export default function UserLibrary({myUser, items}: {myUser: myUser, items: []}
                 className="text-4xl font-bold"
                 style={{ fontFamily: "Space Grotesk, sans-serif" }}
               >
-                Library
+                Archivo
               </h1>
               <p className="text-slate-400 mt-1">
-                Your saved notes and summaries
+                Tus notas y resumenes archivados
               </p>
             </div>
           </div>
@@ -294,7 +259,7 @@ export default function UserLibrary({myUser, items}: {myUser: myUser, items: []}
             </p>
           </div>
         ) : (
-          <>{viewMode === "grid" ? renderGridView() : renderListView()}</>
+          <>{renderGridView()}</>
         )}
       </main>
 

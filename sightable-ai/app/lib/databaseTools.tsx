@@ -50,6 +50,12 @@ export async function checkLoggedUser(email: String) {
   return query.rowCount;
 }
 
+export async function getUserID(email: String) {
+  const query = await ConnectionDB.query(
+    "SELECT id FROM loggedUsers WHERE email ='" + email + "';"
+  );
+  return query.rows;
+}
 export async function getPassword(email: String) {
   const query = await ConnectionDB.query(
     "SELECT password FROM loggedUsers WHERE email ='" + email + "'"
@@ -271,5 +277,65 @@ export async function updateUser(
     );
     return query.rowCount;
   }
+  ConnectionDB.end;
+}
+
+export async function addNote(user_id: string, title: string, content: string) {
+  const user = await getUserID(user_id);
+  const userID = user[0]["id"];
+  if (user) {
+    const query = await ConnectionDB.query(
+      `INSERT INTO user_notes (user_id, title, content) VALUES (${userID}, '${title}', '${content}');`
+    );
+    ConnectionDB.end;
+    return query.rowCount;
+  }
+  ConnectionDB.end;
+}
+
+export async function addSummary(
+  user_id: string,
+  title: string,
+  summary_content: string
+) {
+  const user = await getUserID(user_id);
+  const userID = user[0]["id"];
+  console.log(title);
+  if (user) {
+    const query = await ConnectionDB.query(
+      "INSERT INTO user_summaries (user_id, title, summary_content) VALUES ($1, $2, $3);",
+      [userID, title, summary_content]
+    );
+    ConnectionDB.end;
+    return query.rowCount;
+  }
+  ConnectionDB.end;
+}
+
+export async function getSummaries(user_id: string) {
+  const user = await getUserID(decodeURIComponent(user_id));
+  const userID = user[0].id;
+  if (user) {
+    const query = await ConnectionDB.query(
+      "SELECT * FROM user_summaries WHERE user_id = $1",
+      [userID]
+    );
+    ConnectionDB.end;
+    return query.rows;
+  }
+  ConnectionDB.end;
+}
+export async function getNotes(user_id: string) {
+  const user = await getUserID(decodeURIComponent(user_id));
+  const userID = user[0].id;
+  if (user) {
+    const query = await ConnectionDB.query(
+      "SELECT * FROM user_notes WHERE user_id = $1",
+      [userID]
+    );
+    ConnectionDB.end;
+    return query.rows;
+  }
+  ConnectionDB.end;
   ConnectionDB.end;
 }

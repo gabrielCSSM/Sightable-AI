@@ -13,8 +13,28 @@ import {
   User,
 } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
+import { myUser } from "./myUser";
 
-function renderNotes(response: Array<T>) {
+function renderNotes(response: Array<T>, myUser: myUser) {
+  const handleSave = async (r, k) => {
+    const payload = {
+      action: "notes",
+      user_id: myUser["email"],
+      archive: r["archive"],
+      content: r["summary"],
+    };
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_URL}/api/auth/users/files`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      }
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br rounded-4xl from-slate-950 via-slate-900 to-slate-950 text-white p-8 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -39,18 +59,20 @@ function renderNotes(response: Array<T>) {
               </p>
             </div>
           </div>
-
-          <div className="flex gap-3">
-            <button className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-teal-400 transition-all">
-              <Download className="w-5 h-5" />
-            </button>
-          </div>
         </div>
         <div className="flex flex-col gap-3">
           {response.map((r, k) => {
             return (
-              <div>
-                <h1>{r.archive} </h1>
+              <div className="">
+                <div className="flex gap-3">
+                  <h1>{r.archive} </h1>
+                  <button
+                    onClick={() => handleSave(r, k)}
+                    className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-teal-400 transition-all"
+                  >
+                    <Download className="w-5 h-5" />
+                  </button>
+                </div>
                 <div
                   key={k}
                   className="bg-slate-800/30 backdrop-blur-sm border-2 border-slate-700 rounded-2xl p-8"
@@ -70,7 +92,25 @@ function renderNotes(response: Array<T>) {
   );
 }
 
-function renderSummary(response: Array<T>) {
+function renderSummary(response: Array<T>, myUser: myUser) {
+  const handleSave = async (r, k) => {
+    const payload = {
+      action: "summary",
+      user_id: myUser["email"],
+      archive: r["archive"],
+      content: r["summary"],
+    };
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_URL}/api/auth/users/files`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      }
+    );
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br rounded-4xl from-slate-950 via-slate-900 to-slate-950 text-white p-8 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -108,7 +148,15 @@ function renderSummary(response: Array<T>) {
           {response.map((r, k) => {
             return (
               <div>
-                <h1>{r.archive} </h1>
+                <div className="flex gap-3">
+                  <h1>{r.archive} </h1>
+                  <button
+                    onClick={() => handleSave(r, k)}
+                    className="p-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-teal-400 transition-all"
+                  >
+                    <Download className="w-5 h-5" />
+                  </button>
+                </div>
                 <div
                   key={k}
                   className="bg-slate-800/30 backdrop-blur-sm border-2 border-slate-700 rounded-2xl p-8"
@@ -143,7 +191,7 @@ function renderChatbot(response: Array<T>) {
   // Format context for the API
   const formatContext = () => {
     if (!response || response.length === 0) return "";
-    console.log(response)
+    console.log(response);
     return response
       .map((doc, index) => {
         return `Document ${index + 1}: ${doc.archive}\n${doc.summary}`;
@@ -347,14 +395,16 @@ function renderChatbot(response: Array<T>) {
 export default function RenderResponse({
   response,
   option,
+  myUser,
 }: {
   response: Array<T>;
   option: string;
+  myUser: myUser;
 }) {
   return (
     <>
-      {option === "notes" ? renderNotes(response) : <></>}
-      {option === "summarizer" ? renderSummary(response) : <></>}
+      {option === "notes" ? renderNotes(response, myUser) : <></>}
+      {option === "summarizer" ? renderSummary(response, myUser) : <></>}
       {option === "summary-chat" ? renderChatbot(response) : <></>}
     </>
   );
