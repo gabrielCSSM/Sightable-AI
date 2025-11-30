@@ -1,30 +1,45 @@
 "use client";
 import { Mail, Save, User, Lock } from "lucide-react";
 import { useState } from "react";
+import { sessionUnset } from "../validate-account/handle";
+import { redirect } from "next/navigation";
 
-export default function SettingsPage() {
+export default function SettingsPage(myUser: any) {
   const [formData, setFormData] = useState({
-    name: "Alex Johnson",
-    email: "alex.j@university.edu",
+    name: myUser["myUser"]["user"],
+    email: myUser["myUser"]["email"],
+    oldEmail: myUser["myUser"]["email"],
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    helpName: "",
-    helpEmail: "",
-    helpSubject: "",
-    helpMessage: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const handleSave = () => {
     setIsSaving(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsSaving(false);
-      alert("Settings saved successfully!");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_URL}/api/auth/users/update`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      console.log(res)
+      
+      if(res.status == 303) {
+
+        await sessionUnset();
+        redirect("/login");
+      }
     }, 1500);
   };
 
-   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
   return (
     <div className="max-w-3xl mx-auto">

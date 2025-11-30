@@ -14,6 +14,12 @@ export default function SettingsProfile() {
   const [currentPage, setCurrentPage] = useState("settings");
   const router = useSearchParams();
   const section = router.get("currentPage");
+  const data = router.get("data");
+  let myUser;
+  if (data) {
+    myUser = JSON.parse(atob(data));
+  }
+  //console.log(myUser)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
@@ -49,7 +55,7 @@ export default function SettingsProfile() {
           <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-cyan-300 rounded-full flex items-center justify-center">
             <User className="w-4 h-4 text-slate-900" />
           </div>
-          <span className="font-semibold">Alex J.</span>
+          <span className="font-semibold">{myUser["user"]}</span>
         </button>
       </header>
 
@@ -58,7 +64,7 @@ export default function SettingsProfile() {
         <div className="max-w-7xl mx-auto px-8">
           <nav className="flex gap-1">
             <Link
-              href={"/settings?currentPage=settings"}
+              href={`/settings?currentPage=settings&data=${data}`}
               className={`flex items-center gap-2 px-6 py-4 font-semibold transition-all ${
                 section === "settings"
                   ? "text-teal-400 border-b-2 border-teal-400"
@@ -69,7 +75,7 @@ export default function SettingsProfile() {
               <span>Settings</span>
             </Link>
             <Link
-              href={"/settings?currentPage=subscription"}
+              href={`/settings?currentPage=subscription&data=${data}`}
               className={`flex items-center gap-2 px-6 py-4 font-semibold transition-all ${
                 section === "subscription"
                   ? "text-teal-400 border-b-2 border-teal-400"
@@ -80,7 +86,7 @@ export default function SettingsProfile() {
               <span>Subscription</span>
             </Link>
             <Link
-              href={"/settings?currentPage=help"}
+              href={`/settings?currentPage=help&data=${data}`}
               className={`flex items-center gap-2 px-6 py-4 font-semibold transition-all ${
                 section === "help"
                   ? "text-teal-400 border-b-2 border-teal-400"
@@ -96,7 +102,7 @@ export default function SettingsProfile() {
 
       {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-8 py-12">
-        {section === "settings" && <SettingsPage />}
+        {section === "settings" && <SettingsPage myUser={myUser} />}
         {section === "subscription" && <SubscriptionPage />}
         {section === "help" && <HelpPage />}
       </main>

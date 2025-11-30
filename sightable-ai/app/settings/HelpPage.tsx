@@ -3,11 +3,6 @@ import { useState } from "react";
 
 export default function HelpPage() {
   const [formData, setFormData] = useState({
-    name: "Alex Johnson",
-    email: "alex.j@university.edu",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
     helpName: "",
     helpEmail: "",
     helpSubject: "",
@@ -19,7 +14,6 @@ export default function HelpPage() {
       setIsSaving(false);
       alert("Your message has been sent! We'll get back to you soon.");
       setFormData((prev) => ({
-        ...prev,
         helpName: "",
         helpEmail: "",
         helpSubject: "",
@@ -80,7 +74,7 @@ export default function HelpPage() {
                 value={formData.helpName}
                 onChange={(e) => handleInputChange("helpName", e.target.value)}
                 className="w-full h-12 pl-12 pr-4 bg-slate-800/50 border-2 border-slate-700 rounded-xl text-white placeholder-slate-500 focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/20 transition-all duration-300"
-                placeholder="Alex Johnson"
+                placeholder="Your Name."
               />
             </div>
           </div>
@@ -159,7 +153,7 @@ export default function HelpPage() {
             <p>
               📧 Email:{" "}
               <a
-                href="mailto:support@duckvision.com"
+                href=""
                 className="text-teal-400 hover:text-teal-300"
               >
                 support@sightable.ai
@@ -168,7 +162,7 @@ export default function HelpPage() {
             <p>💬 Live Chat: Available Mon-Fri, 8:00-16:00pm GMT</p>
             <p>
               📚 Documentation:{" "}
-              <a href="#" className="text-teal-400 hover:text-teal-300">
+              <a href="https://github.com/gabrielCSSM/Sightable-AI" className="text-teal-400 hover:text-teal-300">
                 https://github.com/gabrielCSSM/Sightable-AI
               </a>
             </p>

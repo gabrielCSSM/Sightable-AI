@@ -4,7 +4,7 @@ import ConnectionDB from "./connectorDB";
 function generateValidationCode() {
   let code = "";
   while (code.length <= 7) {
-    code += randomInt(10)
+    code += randomInt(10);
   }
   return code;
 }
@@ -105,14 +105,22 @@ export async function updateGuestFiles(email: String, fileCount: number) {
     "SELECT files_processed FROM guestUsers WHERE email ='" + email + "';"
   );
 
-  const minusFiles = query.rows[0]
-  console.log(minusFiles)
-  
+  const minusFiles = query.rows[0];
+  console.log(minusFiles);
+
   const query2 = await ConnectionDB.query(
-    "UPDATE files_processed SET files_processed=" + fileCount + " FROM guestUsers WHERE email ='" + email + "';"
+    "UPDATE files_processed SET files_processed=" +
+      fileCount +
+      " FROM guestUsers WHERE email ='" +
+      email +
+      "';"
   );
   const query3 = await ConnectionDB.query(
-    "UPDATE files_processed SET files_processed=" + fileCount + " FROM guestUsers WHERE email ='" + email + "';"
+    "UPDATE files_processed SET files_processed=" +
+      fileCount +
+      " FROM guestUsers WHERE email ='" +
+      email +
+      "';"
   );
 
   return query.rows;
@@ -127,17 +135,17 @@ export async function getGuestRemainingUses(email: String) {
 export async function createGuest(email: String) {
   const char = "TEST";
   const query = await ConnectionDB.query(
-    "INSERT INTO guestusers (email, files_processed, summaries_made) VALUES ('" + email +"', 3, 0);"
+    "INSERT INTO guestusers (email, files_processed, summaries_made) VALUES ('" +
+      email +
+      "', 3, 0);"
   );
   ConnectionDB.end;
   return query.rows;
 }
 
 export async function createPendingUser(email: String, pass: String) {
-  
   const valCode = generateValidationCode();
-  
-  
+
   if (await checkPendingUser(email)) {
     deletePendingUser(email);
     const query = await ConnectionDB.query(
@@ -222,9 +230,11 @@ export async function updateStatus(email: String) {
 }
 
 export async function updateValidationCode(email: String) {
-  generateValidationCode()
+  generateValidationCode();
   const query = await ConnectionDB.query(
-    "UPDATE pendingusers SET validation_code='12345678' WHERE email='" + email + "';"
+    "UPDATE pendingusers SET validation_code='12345678' WHERE email='" +
+      email +
+      "';"
   );
   ConnectionDB.end;
   return query.rowCount;
@@ -246,5 +256,20 @@ export async function upgradeUser(email: String) {
     deletePendingUser(email);
   }
 
+  ConnectionDB.end;
+}
+export async function updateUser(
+  oldEmail: string,
+  email: String,
+  oldPpassword: String,
+  password: string
+) {
+  const checkPass = await checkPassword(oldEmail, oldPpassword);
+  if (checkPass == 1) {
+    const query = await ConnectionDB.query(
+      `UPDATE loggedUsers SET password=crypt('${password}', gen_salt('sha256crypt')), email='${email}' WHERE email='${oldEmail}';`
+    );
+    return query.rowCount;
+  }
   ConnectionDB.end;
 }
