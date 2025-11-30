@@ -64,7 +64,7 @@ export default function UserLibrary() {
         // map notes -> library item shape
         for (const n of notesArr) {
           mapped.push({
-            id: n.id ?? idCounter++,
+            id: idCounter++,
             type: "notes",
             title: n.title ?? n.archive ?? "Untitled note",
             content: n.content ?? n.body ?? "",
@@ -76,7 +76,7 @@ export default function UserLibrary() {
         // map summaries -> library item shape
         for (const s of summariesArr) {
           mapped.push({
-            id: s.id ?? idCounter++,
+            id: idCounter++,
             type: "summary",
             title: s.title ?? s.archive ?? "Untitled summary",
             summary_content: s.summary_content ?? s.content ?? s.summary ?? "",

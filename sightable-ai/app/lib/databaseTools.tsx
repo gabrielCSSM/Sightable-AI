@@ -285,7 +285,8 @@ export async function addNote(user_id: string, title: string, content: string) {
   const userID = user[0]["id"];
   if (user) {
     const query = await ConnectionDB.query(
-      `INSERT INTO user_notes (user_id, title, content) VALUES (${userID}, '${title}', '${content}');`
+      "INSERT INTO user_notes (user_id, title, content) VALUES ($1, $2, $3);",
+      [userID, title, content]
     );
     ConnectionDB.end;
     return query.rowCount;
