@@ -1,102 +1,174 @@
-# Project Setup Guide
+# :eye: Sigthable Setup Guide
 
-This guide will walk you through the complete setup process for this project.
+A comprehensive guide to get you up and running with this full-stack application featuring Docker, Node.js, Python, and AI capabilities.
 
-## Prerequisites
+## 📋 Prerequisites
 
-- Docker and Docker Compose
-- Node.js and npm
-- Python with pip
-- Ollama
+Before you begin, ensure you have the following installed on your system:
 
-## Installation Steps
+- **Docker** and **Docker Compose** - [Install Docker](https://docs.docker.com/get-docker/)
+- **Node.js** (v16 or higher) and **npm** - [Install Node.js](https://nodejs.org/)
+- **Python** (v3.8 or higher) and **pip** - [Install Python](https://www.python.org/downloads/)
+- **Ollama** - [Install Ollama](https://ollama.ai/)
+- **Git** - [Install Git](https://git-scm.com/downloads)
 
-### 1. Clone the Repository
+## 🛠️ Installation Steps
 
-First, clone this repository to your local machine:
+### Step 1: Clone the Repository
 
 ```bash
 git clone https://github.com/gabrielCSSM/Sightable-AI.git
 cd sightable-ai
 ```
 
-### 2. Set Up Docker Database
+### Step 2: Database Setup with Docker
 
-In the project root directory, you'll find two files: `docker-compose.yaml` and `createDB.sql`.
+The project root contains two essential files:
+- `docker-compose.yaml` - Docker configuration
+- `createDB.sql` - Database initialization script
 
-Start the Docker container:
+**Launch the Docker container:**
 
 ```bash
 docker compose up
 ```
 
-Once the container is running, navigate to `localhost:8080` in your browser and log in using the credentials provided in the `docker-compose.yaml` file (note: storing credentials in docker-compose is not a best practice).
+> ⏳ Wait for the container to fully start before proceeding.
 
-After logging in, copy and paste the script from `createDB.sql` to create the database structure.
+**Initialize the database:**
 
-### 3. Create Environment File
+1. Navigate to `http://localhost:8080` in your browser
+2. Log in using the credentials found in `docker-compose.yaml`
+   - ⚠️ **Note:** Credentials in docker-compose files are not recommended for production
+3. Copy the entire content of `createDB.sql`
+4. Paste and execute it in the database management interface
 
-Create an environment configuration file in the project root directory.
+### Step 3: Environment Configuration
 
-### 4. Install Node.js Dependencies
+Create a `.env` file in the project root directory with your environment variables.
 
-Install all Node.js dependencies:
+```bash
+# Example .env structure (adjust as needed)
+DATABASE_URL=your_url
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000/
+NEXT_PUBLIC_URL=http://localhost:3000/
+NEXT_PUBLIC_AI_URL=http://localhost:8000/
+```
+
+### Step 4: Install Node.js Dependencies
+
+Install all required Node.js packages:
 
 ```bash
 npm install
 ```
 
-### 5. Set Up Python Virtual Environment
+### Step 5: Python Virtual Environment Setup
 
-Open a new terminal and activate the Python virtual environment:
+**Create and activate the virtual environment:**
 
 ```bash
+# Windows
 venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
 ```
 
-Once activated, install the Python dependencies:
+**Install Python dependencies:**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 6. Set Up AI Model
+> 💡 Your terminal prompt should change to indicate the virtual environment is active (e.g., `(venv)`).
 
-Open Command Prompt (cmd) and run the Ollama AI model:
+### Step 6: AI Model Setup
+
+Download and initialize the Gemma AI model using Ollama:
 
 ```bash
 ollama run gemma3:4b
 ```
 
-This will download and prepare the AI model for use.
+> 📥 First-time setup will download the model (~3.5GB). This may take a few minutes depending on your internet connection.
 
-### 7. Start the Application
+### Step 7: Launch the Application
 
-You need to run two services simultaneously:
+You'll need **three separate terminal windows** running simultaneously:
 
-**Terminal 1** - Start the main project:
+#### Terminal 1: Docker Container
+```bash
+docker compose up
+```
+*Keep this running to maintain database connectivity*
+
+#### Terminal 2: Node.js Development Server
 ```bash
 npm run dev
 ```
+*This serves the main application frontend and backend*
 
-**Terminal 2** - Start the FastAPI server (with venv activated):
+#### Terminal 3: FastAPI AI Service
+
 ```bash
+# Activate virtual environment first
+venv\Scripts\activate
+
+# Navigate to AI service directory
 cd app\ai_process
+
+# Start FastAPI server
 fastapi dev api_sightable.py
 ```
 
-## You're All Set!
+## ✅ Verification
 
-The application should now be running and ready to use.
+Once all services are running, you should see:
 
-## Project Structure
+- **Frontend/Backend:** Running on `http://localhost:3000` (or specified port)
+- **Database UI:** Available at `http://localhost:8080`
+- **FastAPI Docs:** Accessible at `http://localhost:8000/docs`
 
-- Root directory contains Docker configuration and database setup
-- Node.js application serves the main project
-- Python FastAPI application in `app\ai_process` handles AI processing
+## 📁 Project Structure
 
-## Notes
+```
+project-root/
+├── app/
+│   └── ai_process/
+│       └── api_sightable.py    # FastAPI AI service
+├── venv/                        # Python virtual environment
+├── docker-compose.yaml          # Docker configuration
+├── createDB.sql                 # Database schema
+├── requirements.txt             # Python dependencies
+├── package.json                 # Node.js dependencies
+└── .env                         # Environment variables
+```
 
-- Make sure all services are running before using the application
-- Keep the Docker container, npm dev server, and FastAPI server running during development
-- The AI model needs to be running for AI-related features to work
+## 🔧 Troubleshooting
+
+### Docker Issues
+- Ensure Docker Desktop is running
+
+### Virtual Environment Issues
+- On Windows, you may need to enable script execution: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+
+### AI Model Issues
+- Verify Ollama is installed: `ollama --version`
+- Check available models: `ollama list`
+
+## 🎯 Development Workflow
+
+1. Start Docker container for database
+2. Activate Python virtual environment
+3. Run `npm run dev` for frontend/backend
+4. Run FastAPI server for AI features
+5. Begin development with all services hot-reloading
+
+## 📝 Important Notes
+
+- **All services must be running** for full functionality
+- **Keep terminals open** during development
+- **Database persistence** is handled by Docker volumes
+- **Hot reload** is enabled for both Node.js and FastAPI servers
