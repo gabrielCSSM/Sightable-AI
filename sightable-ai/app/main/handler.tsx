@@ -5,7 +5,60 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "pdfjs-dist/legacy/build/pdf.worker.mjs";
 
-export async function handleFileUpload(filesData: Array<T>) {
+async function handlePDF(fileBuffer: Buffer) {
+  let textContent = "";
+  const buffArr = new Uint8Array(fileBuffer);
+
+  const loadingTask = pdfjsLib.getDocument({ data: buffArr });
+  const pdf = await loadingTask.promise;
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((it: any) => it.str).join(" ");
+    textContent += pageText + "\n";
+  }
+
+  await pdf.destroy?.();
+  return textContent;
+}
+
+async function handleTXT(fileBuffer: Buffer) {
+  let textContent = "";
+  const buffArr = new Uint8Array(fileBuffer);
+
+  const loadingTask = pdfjsLib.getDocument({ data: buffArr });
+  const pdf = await loadingTask.promise;
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((it: any) => it.str).join(" ");
+    textContent += pageText + "\n";
+  }
+
+  await pdf.destroy?.();
+  return textContent;
+}
+
+async function handleDOCX(fileBuffer: Buffer) {
+  let textContent = "";
+  const buffArr = new Uint8Array(fileBuffer);
+
+  const loadingTask = pdfjsLib.getDocument({ data: buffArr });
+  const pdf = await loadingTask.promise;
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((it: any) => it.str).join(" ");
+    textContent += pageText + "\n";
+  }
+
+  await pdf.destroy?.();
+  return textContent;
+}
+export async function handleFileUpload(filesData: Array<T>, option: string) {
   const results: Array<any> = [];
   for (const fl of filesData) {
     try {
@@ -14,37 +67,38 @@ export async function handleFileUpload(filesData: Array<T>) {
       const fileBuffer = Buffer.from(buffer);
 
       writeFileSync("./data/" + file.name, fileBuffer);
+      const ext = String(file.name).toLowerCase().split(".").pop();
+      console.log(ext);
+      let responseText = "";
+      const fileName = file.name;
 
-      let text = "";
-      const buffArr = new Uint8Array(fileBuffer);
-
-      if (String(file.name).toLowerCase().endsWith(".pdf")) {
-        // run pdfjs in single-threaded mode on the server
-        const loadingTask = pdfjsLib.getDocument({ data: buffArr });
-        const pdf = await loadingTask.promise;
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          const pageText = content.items.map((it: any) => it.str).join(" ");
-          text += pageText + "\n";
-        }
-        await pdf.destroy?.();
+      switch (ext) {
+        case "pdf":
+          responseText = await handlePDF(fileBuffer);
+          break;
+        case "docx":
+          responseText = await handleDOCX(fileBuffer);
+          break;
+        case "txt":
+          responseText = await handleTXT(fileBuffer);
+          break;
+        default:
+          break;
       }
-      // send JSON and set headers so the server knows what to expect
-      const res = await fetch(`${process.env.NEXT_PUBLIC_AI_URL}summarizer`, {
-        method: "POST",
+      
+      if(option === "summary-chat") {
+        option = "summarizer";
+      }
 
-        body: JSON.stringify({ text }),
+      const res = await fetch(`${process.env.NEXT_PUBLIC_AI_URL}${option}`, {
+        method: "POST",
+        body: JSON.stringify({ fileName ,responseText }),
       });
 
-      console.log(res);
-
-      // check status and parse JSON safely
       if (res.ok) {
         results.push(await res.json());
         console.log(results);
       } else {
-        // push raw text or status for debugging
         const body = await res.text();
         results.push({ status: res.status, body });
       }

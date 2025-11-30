@@ -16,9 +16,11 @@ import {
   MessageSquare,
   ListChecks,
   CheckCircle,
+  Trash,
 } from "lucide-react";
 import ProfileSide from "./components/Profile";
 import { myUser } from "./components/myUser";
+import RenderResponse from "./components/ResponseRender";
 
 export default function RenderUI({
   available,
@@ -33,7 +35,7 @@ export default function RenderUI({
   const [selectedMode, setSelectedMode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef(null);
-  const [response, setResponse] = useState("");
+  const [response, setResponse] = useState([]);
 
   const MAX_FILES = myUser["role"] == "user" ? 5 : 3;
   const MAX_SIZE_MB = 150;
@@ -52,7 +54,7 @@ export default function RenderUI({
       textColor: "text-purple-300",
     },
     {
-      id: "summary",
+      id: "summarizer",
       name: "Summary",
       icon: Sparkles,
       color: "pink",
@@ -63,7 +65,7 @@ export default function RenderUI({
       textColor: "text-pink-300",
     },
     {
-      id: "chatbot",
+      id: "summary-chat",
       name: "Chatbot",
       icon: MessageSquare,
       color: "amber",
@@ -167,8 +169,9 @@ export default function RenderUI({
     // Simulate processing
     setTimeout(async () => {
       setIsProcessing(false);
-      const data = await handleFileUpload(uploadedFiles);
-      setResponse(data["summary"]);
+      const data = await handleFileUpload(uploadedFiles, selectedMode);
+      setResponse(data);
+      //setResponse("a")
     }, 2000);
   };
 
@@ -352,14 +355,17 @@ export default function RenderUI({
                   return (
                     <button
                       key={mode.id}
-                      onClick={() => setSelectedMode(mode.id)}
+                      onClick={() =>
+                        response.length == 0
+                          ? setSelectedMode(mode.id)
+                          : setResponse([])
+                      }
                       className={`relative bg-slate-800/40 backdrop-blur-sm border-2 rounded-2xl p-6 transition-all duration-300 group ${
                         isSelected
                           ? `${mode.borderColor} shadow-lg transform scale-105`
                           : "border-slate-700 hover:border-slate-600 hover:transform hover:scale-[1.02]"
-                      }`}>
-                
-
+                      }`}
+                    >
                       {isSelected && (
                         <div
                           className={`absolute inset-0 bg-gradient-to-br ${mode.bgColor} rounded-2xl`}
@@ -400,7 +406,7 @@ export default function RenderUI({
             </div>
 
             {/* Process Button */}
-            <div className="text-center">
+            <div className="flex flex-row justify-center text-center gap-6">
               <button
                 onClick={handleProcess}
                 disabled={!selectedMode || isProcessing}
@@ -418,11 +424,28 @@ export default function RenderUI({
                   </>
                 )}
               </button>
+              {response.length != 0 ? (
+                <button
+                  onClick={() => {
+                    setResponse([]);
+                    setSelectedMode("");
+                  }}
+                  className="group px-12 py-4 bg-gradient-to-r from-red-900 to-red-600 rounded-xl font-semibold text-slate-900 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transform hover:scale-105 transition-all duration-300 inline-flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  <Trash className="w-5 h-5" />
+                  <span>Clean</span>
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
-
-            <div className="border-2 rounded-3xl border-amber-50">
-              {response}
-            </div>
+            {response.length != 0 ? (
+              <div className="mt-5">
+                <RenderResponse response={response} option={selectedMode} />
+              </div>
+            ) : (
+              <></>
+            )}
           </>
         )}
       </main>
