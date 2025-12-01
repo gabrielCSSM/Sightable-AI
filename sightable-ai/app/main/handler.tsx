@@ -74,11 +74,13 @@ export async function handleFileUpload(filesData: Array<T>, option: string) {
           break;
       }
       
-      console.log(responseText)
+      //console.log(responseText)
       const res = await fetch(`${process.env.NEXT_PUBLIC_AI_URL}${option}`, {
         method: "POST",
         body: JSON.stringify({ fileName ,responseText }),
       });
+
+      console.log(res)
 
       if (res.ok) {
         results.push(await res.json());

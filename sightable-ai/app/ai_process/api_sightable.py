@@ -70,7 +70,7 @@ async def chat(context: str = Form(...), question: str = Form(...)):
         logger.info(f"Context length: {len(context)}")
         
         messages = [
-            {"role": "system", "content": f"You may only answer using this context:\n{context}\n'"},
+            {"role": "system", "content": f"You must only answer using this context:\n{context}\n'"},
             {"role": "user", "content": question}
         ]
         
