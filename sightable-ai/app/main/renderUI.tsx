@@ -352,62 +352,59 @@ export default function RenderUI({ myUser }: { myUser: myUser }) {
                 {modes.map((mode) => {
                   const Icon = mode.icon;
                   const isSelected = selectedMode === mode.id;
+
+                  if (myUser.role == "guest" && mode.id == "summary-chat")
+                    return null;
                   return (
-                    <>
-                      {myUser.role == "guest" && mode.id == "summary-chat" ? (
-                        <></>
-                      ) : (
-                        <button
-                          key={mode.id}
-                          onClick={() =>
-                            response.length == 0
-                              ? setSelectedMode(mode.id)
-                              : setResponse([])
-                          }
-                          className={`relative bg-slate-800/40 backdrop-blur-sm border-2 rounded-2xl p-6 transition-all duration-300 group ${
-                            isSelected
-                              ? `${mode.borderColor} shadow-lg transform scale-105`
-                              : "border-slate-700 hover:border-slate-600 hover:transform hover:scale-[1.02]"
-                          }`}
-                        >
-                          {isSelected && (
-                            <div
-                              className={`absolute inset-0 bg-gradient-to-br ${mode.bgColor} rounded-2xl`}
-                            ></div>
-                          )}
-
-                          <div className="relative z-10">
-                            <div
-                              className={`w-16 h-16 bg-gradient-to-br ${mode.gradient} rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg`}
-                            >
-                              <Icon className="w-8 h-8 text-white" />
-                            </div>
-
-                            <h4
-                              className="text-xl font-bold mb-2"
-                              style={{
-                                fontFamily: "Space Grotesk, sans-serif",
-                              }}
-                            >
-                              {mode.name}
-                            </h4>
-
-                            <p className="text-slate-400 text-sm">
-                              {mode.description}
-                            </p>
-
-                            {isSelected && (
-                              <div className="mt-4 flex items-center justify-center gap-2 text-teal-400">
-                                <CheckCircle className="w-5 h-5" />
-                                <span className="font-semibold text-sm">
-                                  Selected
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </button>
+                    <button
+                      key={mode.id}
+                      onClick={() =>
+                        response.length == 0
+                          ? setSelectedMode(mode.id)
+                          : setResponse([])
+                      }
+                      className={`relative bg-slate-800/40 backdrop-blur-sm border-2 rounded-2xl p-6 transition-all duration-300 group ${
+                        isSelected
+                          ? `${mode.borderColor} shadow-lg transform scale-105`
+                          : "border-slate-700 hover:border-slate-600 hover:transform hover:scale-[1.02]"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${mode.bgColor} rounded-2xl`}
+                        ></div>
                       )}
-                    </>
+
+                      <div className="relative z-10">
+                        <div
+                          className={`w-16 h-16 bg-gradient-to-br ${mode.gradient} rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg`}
+                        >
+                          <Icon className="w-8 h-8 text-white" />
+                        </div>
+
+                        <h4
+                          className="text-xl font-bold mb-2"
+                          style={{
+                            fontFamily: "Space Grotesk, sans-serif",
+                          }}
+                        >
+                          {mode.name}
+                        </h4>
+
+                        <p className="text-slate-400 text-sm">
+                          {mode.description}
+                        </p>
+
+                        {isSelected && (
+                          <div className="mt-4 flex items-center justify-center gap-2 text-teal-400">
+                            <CheckCircle className="w-5 h-5" />
+                            <span className="font-semibold text-sm">
+                              Selected
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </button>
                   );
                 })}
               </div>
@@ -449,7 +446,11 @@ export default function RenderUI({ myUser }: { myUser: myUser }) {
             </div>
             {response.length != 0 ? (
               <div className="mt-5">
-                <RenderResponse response={response} option={selectedMode} myUser={myUser} />
+                <RenderResponse
+                  response={response}
+                  option={selectedMode}
+                  myUser={myUser}
+                />
               </div>
             ) : (
               <></>

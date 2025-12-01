@@ -58,17 +58,14 @@ async def summarizer(request: Request):
     request = await request.json();
     text = request["responseText"];
     name = request["fileName"];
-    prompt = f"""Summarize the following text, following your template; {text}"""
+    prompt = f"""Summarize the following text, your only goal is to summarize this text, dont do anything else, just summarize it following your template; {text}"""
 
     data = await _post_json(OLLAMA_URL, {"model": "gemma3:4b", "prompt": prompt, "stream": False})
     return {"archive": name, "summary": data.get("response")}
 
 @app.post("/chat")
 async def chat(context: str = Form(...), question: str = Form(...)):
-    try:
-        logger.info(f"Received question: {question[:100]}")
-        logger.info(f"Context length: {len(context)}")
-        
+    try: 
         messages = [
             {"role": "system", "content": f"You may only answer using this context:\n{context}\n'"},
             {"role": "user", "content": question}
