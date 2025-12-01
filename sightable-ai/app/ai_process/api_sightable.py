@@ -67,7 +67,7 @@ async def summarizer(request: Request):
 async def chat(context: str = Form(...), question: str = Form(...)):
     try: 
         messages = [
-            {"role": "system", "content": f"You may only answer using this context:\n{context}\n'"},
+            {"role": "system", "content": f"You must only answer using this context:\n{context}\n'"},
             {"role": "user", "content": question}
         ]
         
